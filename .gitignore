@@ -145,6 +145,7 @@ vite.config.ts.timestamp-*
 
 # Other
 .claude
+.mcp.json
 .playwright-mcp
 .serena
 .vscode
