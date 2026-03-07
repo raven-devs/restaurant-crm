@@ -8,6 +8,7 @@ import { SalesChannelsModule } from './sales-channels/sales-channels.module';
 import { EmployeesModule } from './employees/employees.module';
 import { OrderStatusesModule } from './order-statuses/order-statuses.module';
 import { OrdersModule } from './orders/orders.module';
+import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -22,6 +23,7 @@ import { AppService } from './app.service';
     EmployeesModule,
     OrderStatusesModule,
     OrdersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
