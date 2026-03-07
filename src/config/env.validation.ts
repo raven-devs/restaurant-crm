@@ -8,9 +8,6 @@ class EnvironmentVariables {
   @IsString()
   SUPABASE_SERVICE_ROLE_KEY: string;
 
-  @IsString()
-  SUPABASE_URL: string;
-
   @IsNumber()
   PORT: number = 3000;
 
