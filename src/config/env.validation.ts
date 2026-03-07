@@ -6,6 +6,9 @@ class EnvironmentVariables {
   SUPABASE_PROJECT_URL: string;
 
   @IsString()
+  SUPABASE_SERVICE_ROLE_KEY: string;
+
+  @IsString()
   SUPABASE_URL: string;
 
   @IsNumber()
