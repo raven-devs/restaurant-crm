@@ -1,5 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import { IsString, IsNumber, validateSync } from 'class-validator';
+import { IsString, IsNumber, IsOptional, validateSync } from 'class-validator';
 
 class EnvironmentVariables {
   @IsString()
@@ -19,6 +19,10 @@ class EnvironmentVariables {
 
   @IsString()
   TELEGRAM_CHAT_ID: string;
+
+  @IsOptional()
+  @IsString()
+  SENTRY_DSN?: string;
 }
 
 export function validate(config: Record<string, unknown>) {
