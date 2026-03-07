@@ -9,6 +9,7 @@ import { EmployeesModule } from './employees/employees.module';
 import { OrderStatusesModule } from './order-statuses/order-statuses.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
+import { ReportsModule } from './reports/reports.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -24,6 +25,7 @@ import { AppService } from './app.service';
     OrderStatusesModule,
     OrdersModule,
     AuthModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
