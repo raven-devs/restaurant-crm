@@ -49,20 +49,26 @@ cd web && npm install
 
 4. Create `.env` in the project root:
 
-```
+```bash
+# Supabase
 SUPABASE_PROJECT_URL=https://<project-id>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
-SUPABASE_URL=<supabase-url>
-TELEGRAM_BOT_TOKEN=<bot-token>
-TELEGRAM_CHAT_ID=<chat-id>
+SUPABASE_SERVICE_ROLE_KEY=<secret key from Supabase Dashboard → Settings → API Keys>
+
+# Server
 PORT=3000
-SENTRY_DSN=<optional>
+
+# Telegram
+TELEGRAM_BOT_TOKEN=<token from @BotFather>
+TELEGRAM_CHAT_ID=<group chat ID, e.g. -5185308692>
+
+# Sentry (optional)
+SENTRY_DSN=<DSN from Sentry → Project → Settings → Client Keys>
 ```
 
 5. Create `web/.env` for the frontend:
 
-```
-VITE_SENTRY_DSN=<optional>
+```bash
+VITE_SENTRY_DSN=<DSN from Sentry → Project → Settings → Client Keys>
 ```
 
 ## Development
@@ -129,7 +135,32 @@ Each transition is enforced by the backend based on the order status linked list
 
 ## Telegram Bot
 
-Commands:
+### Setup
+
+1. Create a bot via [@BotFather](https://t.me/BotFather) (`/newbot`)
+2. Copy the token to `.env` as `TELEGRAM_BOT_TOKEN`
+3. Register commands with BotFather — send `/setcommands`, select your bot, then paste:
+
+```
+start - Welcome message
+orders - List recent orders
+neworder - Create a new order
+help - Show available commands
+```
+
+4. Create a Telegram group for notifications:
+   - Tap the compose icon → "New Group"
+   - Add your bot as a member
+   - Name it (e.g. "Restaurant CRM Orders")
+5. Send any message in the group, then get the chat ID by calling:
+
+```
+https://api.telegram.org/bot<TOKEN>/getUpdates
+```
+
+Look for `"chat":{"id":-XXXXXXX}` and set that number as `TELEGRAM_CHAT_ID` in `.env`. If the response is empty, remove and re-add the bot, send another message, and try again.
+
+### Commands
 
 - `/start` — Welcome message
 - `/orders` — List recent orders with status transition buttons
