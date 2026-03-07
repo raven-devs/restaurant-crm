@@ -7,6 +7,7 @@ import { OrgStructureModule } from './org-structure/org-structure.module';
 import { SalesChannelsModule } from './sales-channels/sales-channels.module';
 import { EmployeesModule } from './employees/employees.module';
 import { OrderStatusesModule } from './order-statuses/order-statuses.module';
+import { OrdersModule } from './orders/orders.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -20,6 +21,7 @@ import { AppService } from './app.service';
     SalesChannelsModule,
     EmployeesModule,
     OrderStatusesModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
