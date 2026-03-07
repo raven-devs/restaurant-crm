@@ -10,6 +10,7 @@ import { OrderStatusesModule } from './order-statuses/order-statuses.module';
 import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { ReportsModule } from './reports/reports.module';
+import { TelegramModule } from './telegram/telegram.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -26,6 +27,7 @@ import { AppService } from './app.service';
     OrdersModule,
     AuthModule,
     ReportsModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],
