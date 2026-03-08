@@ -17,6 +17,7 @@ export interface Employee {
   name: string;
   org_unit_id: string;
   org_unit?: { name: string };
+  email?: string | null;
 }
 
 export interface OrgUnit {

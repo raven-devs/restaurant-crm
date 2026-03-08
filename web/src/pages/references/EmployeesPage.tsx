@@ -7,6 +7,11 @@ import type { Employee } from '@/api/references';
 const columns: Column<Employee>[] = [
   { header: 'Name', accessor: 'name' },
   {
+    header: 'Email',
+    accessor: (row) => row.email ?? '—',
+    sortValue: (row) => row.email ?? '',
+  },
+  {
     header: 'Department',
     accessor: (row) => row.org_unit?.name ?? '—',
     sortValue: (row) => row.org_unit?.name ?? '',
@@ -27,6 +32,15 @@ export function EmployeesPage() {
         options:
           orgUnitsQuery.data?.map((u) => ({ value: u.id, label: u.name })) ??
           [],
+      },
+      { name: 'email', label: 'Email', required: false },
+      {
+        name: 'password',
+        label: 'Password',
+        type: 'password' as const,
+        editDescription: 'Leave empty to keep current password',
+        required: false,
+        requiredOnCreate: true,
       },
     ],
     [orgUnitsQuery.data],

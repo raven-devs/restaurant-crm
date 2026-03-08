@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
@@ -37,9 +37,11 @@ export interface FieldDef {
   name: string;
   label: string;
   description?: string;
-  type?: 'text' | 'number' | 'tel' | 'email' | 'select';
+  editDescription?: string;
+  type?: 'text' | 'number' | 'tel' | 'email' | 'select' | 'password';
   options?: { value: string; label: string }[];
   required?: boolean;
+  requiredOnCreate?: boolean;
 }
 
 interface EntityPageProps<T extends { id: string }> {
@@ -226,6 +228,7 @@ function EntityDialog<T extends { id: string }>({
         <EntityForm
           fields={fields}
           defaults={defaults}
+          isEditing={isEditing}
           onSubmit={(data) => {
             if (isEditing && updateMutation) {
               updateMutation.mutate(
@@ -262,11 +265,13 @@ function EntityDialog<T extends { id: string }>({
 function EntityForm({
   fields,
   defaults,
+  isEditing,
   onSubmit,
   isPending,
 }: {
   fields: FieldDef[];
   defaults: Record<string, string>;
+  isEditing: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
   isPending: boolean;
 }) {
@@ -277,6 +282,24 @@ function EntityForm({
     formState: { errors },
   } = useForm({ defaultValues: defaults });
 
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(
+    new Set(),
+  );
+
+  const togglePasswordVisibility = (name: string) => {
+    setVisiblePasswords((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  };
+
+  const isFieldRequired = (f: FieldDef) => {
+    if (f.requiredOnCreate) return !isEditing;
+    return f.required !== false;
+  };
+
   const processSubmit = (data: Record<string, string>) => {
     const processed: Record<string, unknown> = {};
     for (const f of fields) {
@@ -284,6 +307,8 @@ function EntityForm({
         const val = data[f.name];
         processed[f.name] =
           val === '' || val === undefined ? null : Number(val);
+      } else if (f.type === 'password' && isEditing && !data[f.name]) {
+        continue;
       } else {
         processed[f.name] = data[f.name];
       }
@@ -299,14 +324,18 @@ function EntityForm({
       {fields.map((f) => (
         <div key={f.name} className="flex flex-col gap-1.5">
           <Label htmlFor={f.name}>{f.label}</Label>
-          {f.description && (
-            <p className="text-xs text-muted-foreground">{f.description}</p>
+          {(isEditing
+            ? (f.editDescription ?? f.description)
+            : f.description) && (
+            <p className="text-xs text-muted-foreground">
+              {isEditing ? (f.editDescription ?? f.description) : f.description}
+            </p>
           )}
           {f.type === 'select' ? (
             <Controller
               name={f.name}
               control={control}
-              rules={{ required: f.required !== false }}
+              rules={{ required: isFieldRequired(f) }}
               render={({ field: { onChange, value } }) => {
                 const selected = f.options?.find((o) => o.value === value);
                 return (
@@ -332,13 +361,34 @@ function EntityForm({
                 );
               }}
             />
+          ) : f.type === 'password' ? (
+            <div className="relative">
+              <Input
+                id={f.name}
+                type={visiblePasswords.has(f.name) ? 'text' : 'password'}
+                aria-invalid={!!errors[f.name]}
+                {...register(f.name, { required: isFieldRequired(f) })}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => togglePasswordVisibility(f.name)}
+                tabIndex={-1}
+              >
+                {visiblePasswords.has(f.name) ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
+              </button>
+            </div>
           ) : (
             <Input
               id={f.name}
               type={f.type === 'number' ? 'number' : (f.type ?? 'text')}
               step={f.type === 'number' ? 'any' : undefined}
               aria-invalid={!!errors[f.name]}
-              {...register(f.name, { required: f.required !== false })}
+              {...register(f.name, { required: isFieldRequired(f) })}
             />
           )}
           {errors[f.name] && (
