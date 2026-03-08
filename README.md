@@ -94,6 +94,31 @@ npm run build          # Backend
 cd web && npx vite build   # Frontend
 ```
 
+## CI/CD
+
+GitHub Actions runs three parallel jobs on every push and pull request to `main`:
+
+```
+Job              Steps
+───────────────────────────────────────────────────────────────
+Formatting       prettier --check (src/ + web/src/)
+Backend          eslint → tsc --noEmit → nest build → jest
+Frontend         eslint → tsc -b → vite build
+```
+
+Workflow file: `.github/workflows/ci.yml`
+
+## Deployment
+
+```
+Platform       Purpose                      Config
+───────────────────────────────────────────────────────────────
+Vercel         Frontend (static SPA)        vercel.json
+Railway        Backend (NestJS + Telegram)  railway.json
+```
+
+Vercel rewrites `/api/*` requests to the Railway backend. Both platforms auto-deploy on merge to `main` via GitHub integration.
+
 ## API
 
 All endpoints are prefixed with `/api`. All routes require authentication (Bearer token) unless marked as public.

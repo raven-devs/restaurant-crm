@@ -19,6 +19,10 @@ class EnvironmentVariables {
 
   @IsOptional()
   @IsString()
+  CORS_ORIGIN?: string;
+
+  @IsOptional()
+  @IsString()
   SENTRY_DSN?: string;
 }
 
