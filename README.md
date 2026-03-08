@@ -96,10 +96,10 @@ cd web && npx vite build   # Frontend
 
 ## API
 
-All endpoints are prefixed with `/api`.
+All endpoints are prefixed with `/api`. All routes require authentication (Bearer token) unless marked as public.
 
 ```
-Auth
+Auth (public)
   POST   /api/auth/login
   POST   /api/auth/logout
   GET    /api/auth/me
@@ -108,6 +108,7 @@ Orders
   GET    /api/orders
   GET    /api/orders/:id
   POST   /api/orders
+  DELETE /api/orders/:id
   PATCH  /api/orders/:id/status
   POST   /api/orders/:id/items
   PATCH  /api/orders/:id/items/:itemId
@@ -115,6 +116,10 @@ Orders
 
 Reports
   GET    /api/reports/orders
+
+Settings
+  GET    /api/app-settings
+  PATCH  /api/app-settings
 
 Reference Tables
   GET/POST/PATCH/DELETE  /api/clients
