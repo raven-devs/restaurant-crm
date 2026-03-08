@@ -247,6 +247,7 @@ function EntityDialog<T extends { id: string }>({
           fields={fields}
           defaults={defaults}
           isEditing={isEditing}
+          onCancel={() => onOpenChange(false)}
           onSubmit={(data) => {
             if (isEditing && updateMutation) {
               updateMutation.mutate(
@@ -285,12 +286,14 @@ function EntityForm({
   defaults,
   isEditing,
   onSubmit,
+  onCancel,
   isPending,
 }: {
   fields: FieldDef[];
   defaults: Record<string, string>;
   isEditing: boolean;
   onSubmit: (data: Record<string, unknown>) => void;
+  onCancel: () => void;
   isPending: boolean;
 }) {
   const {
@@ -415,6 +418,9 @@ function EntityForm({
         </div>
       ))}
       <DialogFooter>
+        <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+          Cancel
+        </Button>
         <Button type="submit" disabled={isPending} size="sm">
           {isPending ? 'Saving...' : 'Save'}
         </Button>

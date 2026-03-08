@@ -1,5 +1,7 @@
+import * as Sentry from '@sentry/react';
 import { toast } from 'sonner';
 import { useSettings } from '@/hooks/useSettings';
+import { Button } from '@/components/ui/button';
 import { useOrderStatuses } from '@/hooks/useReferences';
 import { EntityPage, type FieldDef } from '@/components/EntityPage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -128,6 +130,34 @@ export function SettingsPage() {
               </SelectContent>
             </Select>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Sentry</CardTitle>
+        </CardHeader>
+        <CardContent className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              Sentry.captureMessage('Test debug event from FE', 'debug');
+              toast.success('Sentry debug event sent');
+            }}
+          >
+            Send Debug Event
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              Sentry.captureException(new Error('Test error from FE'));
+              toast.success('Sentry error event sent');
+            }}
+          >
+            Send Error Event
+          </Button>
         </CardContent>
       </Card>
 

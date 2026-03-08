@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
 import { Sidebar } from '@/layout/Sidebar';
 import { IconButton } from '@/components/IconButton';
-import { LogOut } from 'lucide-react';
+import { Copyright, LogOut } from 'lucide-react';
 
 export function AppLayout() {
   const { user, logout } = useAuth();
@@ -36,6 +36,20 @@ export function AppLayout() {
         <main className="flex-1 overflow-y-auto p-4">
           <Outlet />
         </main>
+        <footer className="flex h-10 items-center justify-between border-t px-4 text-xs text-muted-foreground">
+          <div className="flex gap-4">
+            <a href="/privacy" className="hover:text-foreground">
+              Privacy Policy
+            </a>
+            <a href="/terms" className="hover:text-foreground">
+              Terms of Use
+            </a>
+          </div>
+          <div className="flex items-center gap-1">
+            <Copyright className="size-3.5" />
+            <span>RavenDevs</span>
+          </div>
+        </footer>
       </div>
     </div>
   );

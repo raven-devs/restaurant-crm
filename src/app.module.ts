@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from './config/config.module';
 import { SupabaseModule } from './supabase/supabase.module';
@@ -14,6 +15,7 @@ import { ReportsModule } from './reports/reports.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { OrderMonitoringModule } from './order-monitoring/order-monitoring.module';
 import { AppSettingsModule } from './app-settings/app-settings.module';
+import { AuditInterceptor } from './audit/audit.interceptor';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -36,6 +38,9 @@ import { AppService } from './app.service';
     AppSettingsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+  ],
 })
 export class AppModule {}

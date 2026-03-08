@@ -201,6 +201,28 @@ Order Advanced to Next Status
    └─ Color resets to green
 ```
 
+## Audit Logging
+
+All backend mutations (POST, PATCH, PUT, DELETE) are automatically logged to Sentry via a global NestJS interceptor. Each successful mutation produces an info-level Sentry event with structured metadata.
+
+Event format:
+
+```
+Title:    audit.{entity}.{action}
+Level:    info
+Extra:
+  entity_type   Entity name from URL (e.g. orders, clients)
+  action        create / update / delete (derived from HTTP method)
+  entity_id     UUID from route params or response body
+  user_id       Authenticated user's UUID
+  user_email    Authenticated user's email
+  path          Full request path (e.g. /api/orders)
+  method        HTTP method
+  timestamp     ISO 8601 timestamp
+```
+
+GET requests and failed mutations are not logged. The interceptor requires `SENTRY_DSN` to be configured.
+
 ## Telegram Bot
 
 ### Setup
