@@ -25,9 +25,10 @@ const navItems = [
 export function Sidebar() {
   return (
     <aside className="flex h-full w-56 flex-col border-r bg-sidebar">
-      <div className="flex h-12 items-center border-b px-4">
+      <div className="flex h-12 items-center gap-2 border-b px-3">
+        <img src="/logo.jpeg" alt="Cake CRM" className="h-9 w-auto rounded" />
         <span className="text-sm font-semibold text-sidebar-foreground">
-          Restaurant CRM
+          Cake CRM
         </span>
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-2">

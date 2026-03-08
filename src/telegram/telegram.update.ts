@@ -22,7 +22,7 @@ export class TelegramUpdate {
   @Start()
   async onStart(@Ctx() ctx: Context) {
     await ctx.reply(
-      'Welcome to Restaurant CRM Bot!\n\n' +
+      'Welcome to Cake CRM Bot!\n\n' +
         'Commands:\n' +
         '/orders - List recent orders\n' +
         '/neworder - Create a new order\n' +

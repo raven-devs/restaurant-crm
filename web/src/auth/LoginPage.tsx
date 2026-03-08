@@ -35,8 +35,12 @@ export function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Restaurant CRM</CardTitle>
+        <CardHeader className="flex items-center justify-center">
+          <img
+            src="/logo.jpeg"
+            alt="Cake CRM"
+            className="h-32 w-auto rounded-lg"
+          />
         </CardHeader>
         <CardContent>
           <form
