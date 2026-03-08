@@ -8,6 +8,7 @@ import {
   InjectBot,
 } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
+import type { SceneContext } from 'telegraf/scenes';
 import { OrdersService } from '../orders/orders.service';
 import { TelegramService } from './telegram.service';
 
@@ -68,8 +69,8 @@ export class TelegramUpdate {
   }
 
   @Command('neworder')
-  async onNewOrder(@Ctx() ctx: Context) {
-    await (ctx as any).scene.enter('new-order');
+  async onNewOrder(@Ctx() ctx: SceneContext) {
+    await ctx.scene.enter('new-order');
   }
 
   @Action(/^transition:(.+)$/)
@@ -92,8 +93,10 @@ export class TelegramUpdate {
         this.bot,
         `Order #${orderId.slice(0, 8)} moved to: ${fullOrder.status?.name}`,
       );
-    } catch (error: any) {
-      await ctx.answerCbQuery(error.message || 'Failed to update status');
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to update status';
+      await ctx.answerCbQuery(message);
     }
   }
 

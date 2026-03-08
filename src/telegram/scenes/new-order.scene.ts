@@ -18,6 +18,11 @@ interface WizardState {
   channel_name?: string;
 }
 
+function getCallbackData(ctx: WizardContext): string | undefined {
+  const query = ctx.callbackQuery;
+  return query && 'data' in query ? query.data : undefined;
+}
+
 @Wizard('new-order')
 export class NewOrderScene {
   constructor(
@@ -31,7 +36,7 @@ export class NewOrderScene {
   @WizardStep(1)
   async step1(@Ctx() ctx: WizardContext) {
     const clients = await this.clientsService.findAll();
-    const buttons = clients.map((c: any) => [
+    const buttons = clients.map((c) => [
       {
         text: `${c.name} (${c.phone})`,
         callback_data: `client:${c.id}:${c.name}`,
@@ -46,7 +51,7 @@ export class NewOrderScene {
 
   @Action(/^client:(.+):(.+)$/)
   async onClientSelect(@Ctx() ctx: WizardContext) {
-    const data = (ctx.callbackQuery as any)?.data;
+    const data = getCallbackData(ctx);
     if (!data) return;
 
     const match = data.match(/^client:(.+?):(.+)$/);
@@ -69,7 +74,7 @@ export class NewOrderScene {
 
   private async showNomenclature(ctx: WizardContext) {
     const items = await this.nomenclatureService.findAll();
-    const buttons: any[][] = items.map((i: any) => [
+    const buttons = items.map((i) => [
       {
         text: `${i.name} - ${i.price} UAH`,
         callback_data: `item:${i.id}:${i.name}`,
@@ -87,7 +92,7 @@ export class NewOrderScene {
 
   @Action(/^item:(.+):(.+)$/)
   async onItemSelect(@Ctx() ctx: WizardContext) {
-    const data = (ctx.callbackQuery as any)?.data;
+    const data = getCallbackData(ctx);
     if (!data) return;
 
     const match = data.match(/^item:(.+?):(.+)$/);
@@ -121,7 +126,7 @@ export class NewOrderScene {
     await ctx.answerCbQuery();
 
     const channels = await this.salesChannelsService.findAll();
-    const buttons = channels.map((ch: any) => [
+    const buttons = channels.map((ch) => [
       { text: ch.name, callback_data: `channel:${ch.id}:${ch.name}` },
     ]);
 
@@ -138,7 +143,7 @@ export class NewOrderScene {
 
   @Action(/^channel:(.+):(.+)$/)
   async onChannelSelect(@Ctx() ctx: WizardContext) {
-    const data = (ctx.callbackQuery as any)?.data;
+    const data = getCallbackData(ctx);
     if (!data) return;
 
     const match = data.match(/^channel:(.+?):(.+)$/);
@@ -195,9 +200,11 @@ export class NewOrderScene {
       await ctx.reply(
         `Order created successfully! ID: ${order.id?.slice(0, 8)}`,
       );
-    } catch (error: any) {
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to create order';
       await ctx.answerCbQuery('Error creating order');
-      await ctx.reply(`Error: ${error.message}`);
+      await ctx.reply(`Error: ${message}`);
     }
 
     await ctx.scene.leave();

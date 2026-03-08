@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
+import type { OrderWithRelations } from '@shared/types/order';
 
 @Injectable()
 export class TelegramService {
@@ -12,10 +13,9 @@ export class TelegramService {
     this.botToken = this.config.getOrThrow<string>('TELEGRAM_BOT_TOKEN');
   }
 
-  formatOrderMessage(order: any): string {
+  formatOrderMessage(order: OrderWithRelations): string {
     const total = (order.items ?? []).reduce(
-      (sum: number, i: any) =>
-        sum + (i.quantity ?? 0) * (i.price_at_order ?? 0),
+      (sum, i) => sum + (i.quantity ?? 0) * (i.price_at_order ?? 0),
       0,
     );
 
