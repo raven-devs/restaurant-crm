@@ -4,6 +4,7 @@ import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -13,6 +14,16 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { DataTable, type Column } from '@/components/DataTable';
 
 export interface FieldDef {
@@ -45,6 +56,7 @@ export function EntityPage<T extends { id: string }>({
 }: EntityPageProps<T>) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<T | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const openCreate = () => {
     setEditingItem(null);
@@ -56,10 +68,13 @@ export function EntityPage<T extends { id: string }>({
     setDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (!deleteMutation) return;
-    deleteMutation.mutate(id, {
-      onSuccess: () => toast.success('Deleted'),
+  const confirmDelete = () => {
+    if (!deleteMutation || !deleteId) return;
+    deleteMutation.mutate(deleteId, {
+      onSuccess: () => {
+        toast.success('Deleted');
+        setDeleteId(null);
+      },
       onError: (err) => toast.error(err.message),
     });
   };
@@ -87,22 +102,24 @@ export function EntityPage<T extends { id: string }>({
               : (row) => (
                   <div className="flex gap-1">
                     {updateMutation && (
-                      <Button
+                      <IconButton
+                        tooltip="Edit"
                         variant="ghost"
                         size="icon-xs"
                         onClick={() => openEdit(row)}
                       >
                         <Pencil />
-                      </Button>
+                      </IconButton>
                     )}
                     {deleteMutation && (
-                      <Button
+                      <IconButton
+                        tooltip="Delete"
                         variant="ghost"
                         size="icon-xs"
-                        onClick={() => handleDelete(row.id)}
+                        onClick={() => setDeleteId(row.id)}
                       >
                         <Trash2 />
-                      </Button>
+                      </IconButton>
                     )}
                   </div>
                 )
@@ -120,6 +137,26 @@ export function EntityPage<T extends { id: string }>({
           updateMutation={updateMutation}
         />
       )}
+
+      <AlertDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete record?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -200,7 +237,11 @@ function EntityForm({
   onSubmit: (data: Record<string, unknown>) => void;
   isPending: boolean;
 }) {
-  const { register, handleSubmit } = useForm({ defaultValues: defaults });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ defaultValues: defaults });
 
   const processSubmit = (data: Record<string, string>) => {
     const processed: Record<string, unknown> = {};
@@ -223,8 +264,14 @@ function EntityForm({
             id={f.name}
             type={f.type === 'number' ? 'number' : (f.type ?? 'text')}
             step={f.type === 'number' ? 'any' : undefined}
+            aria-invalid={!!errors[f.name]}
             {...register(f.name, { required: f.required !== false })}
           />
+          {errors[f.name] && (
+            <p className="text-xs text-destructive">
+              {f.label} is required
+            </p>
+          )}
         </div>
       ))}
       <DialogFooter>

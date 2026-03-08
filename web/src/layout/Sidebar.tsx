@@ -13,20 +13,12 @@ import {
 
 const navItems = [
   { to: '/orders', label: 'Orders', icon: ShoppingCart },
-  { to: '/references/clients', label: 'Clients', icon: Users },
-  { to: '/references/nomenclature', label: 'Nomenclature', icon: Cake },
-  { to: '/references/employees', label: 'Employees', icon: UserCog },
-  { to: '/references/org-units', label: 'Org Structure', icon: Building2 },
-  {
-    to: '/references/sales-channels',
-    label: 'Sales Channels',
-    icon: Megaphone,
-  },
-  {
-    to: '/references/order-statuses',
-    label: 'Order Statuses',
-    icon: ListChecks,
-  },
+  { to: '/clients', label: 'Clients', icon: Users },
+  { to: '/nomenclature', label: 'Nomenclature', icon: Cake },
+  { to: '/employees', label: 'Employees', icon: UserCog },
+  { to: '/org-units', label: 'Org Structure', icon: Building2 },
+  { to: '/sales-channels', label: 'Sales Channels', icon: Megaphone },
+  { to: '/order-statuses', label: 'Order Statuses', icon: ListChecks },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
 ];
 

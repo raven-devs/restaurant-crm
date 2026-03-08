@@ -84,19 +84,19 @@ export const updateEmployee = (
 export const deleteEmployee = (id: string) =>
   apiFetch(`/employees/${id}`, { method: 'DELETE' });
 
-export const getOrgUnits = () => apiFetch<OrgUnit[]>('/org-structure');
+export const getOrgUnits = () => apiFetch<OrgUnit[]>('/org-units');
 export const createOrgUnit = (data: Omit<OrgUnit, 'id'>) =>
-  apiFetch<OrgUnit>('/org-structure', {
+  apiFetch<OrgUnit>('/org-units', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 export const updateOrgUnit = (id: string, data: Partial<Omit<OrgUnit, 'id'>>) =>
-  apiFetch<OrgUnit>(`/org-structure/${id}`, {
+  apiFetch<OrgUnit>(`/org-units/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
 export const deleteOrgUnit = (id: string) =>
-  apiFetch(`/org-structure/${id}`, { method: 'DELETE' });
+  apiFetch(`/org-units/${id}`, { method: 'DELETE' });
 
 export const getSalesChannels = () =>
   apiFetch<SalesChannel[]>('/sales-channels');

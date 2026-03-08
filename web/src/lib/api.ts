@@ -20,6 +20,7 @@ export async function apiFetch<T>(
     throw new Error(error.message || res.statusText);
   }
 
-  if (res.status === 204) return undefined as T;
-  return res.json();
+  const text = await res.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text);
 }

@@ -4,6 +4,7 @@ import { useOrders } from '@/hooks/useOrders';
 import { useOrderStatuses } from '@/hooks/useReferences';
 import type { OrderFilters, Order } from '@/api/orders';
 import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -117,11 +118,11 @@ export function OrdersListPage() {
           columns={columns}
           data={data}
           actions={(row) => (
-            <Button variant="ghost" size="icon-xs" asChild>
+            <IconButton tooltip="View" variant="ghost" size="icon-xs" asChild>
               <Link to={`/orders/${row.id}`}>
                 <Eye />
               </Link>
-            </Button>
+            </IconButton>
           )}
         />
       )}

@@ -9,6 +9,7 @@ import {
   useSalesChannels,
 } from '@/hooks/useReferences';
 import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,14 +143,15 @@ export function CreateOrderPage() {
                   <span className="text-sm text-muted-foreground">
                     x{item.quantity}
                   </span>
-                  <Button
+                  <IconButton
+                    tooltip="Remove"
                     type="button"
                     variant="ghost"
                     size="icon-xs"
                     onClick={() => removeItem(idx)}
                   >
                     <Trash2 />
-                  </Button>
+                  </IconButton>
                 </div>
               );
             })}
@@ -179,14 +181,15 @@ export function CreateOrderPage() {
                   onChange={(e) => setNewItemQty(e.target.value)}
                 />
               </div>
-              <Button
+              <IconButton
+                tooltip="Add item"
                 type="button"
                 variant="outline"
                 size="icon"
                 onClick={addItem}
               >
                 <Plus />
-              </Button>
+              </IconButton>
             </div>
           </CardContent>
         </Card>

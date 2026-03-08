@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useOrder, useAdvanceOrderStatus } from '@/hooks/useOrders';
 import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/IconButton';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -43,11 +44,11 @@ export function OrderDetailPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon-sm" asChild>
+        <IconButton tooltip="Back" variant="ghost" size="icon-sm" asChild>
           <Link to="/orders">
             <ArrowLeft />
           </Link>
-        </Button>
+        </IconButton>
         <h1 className="text-lg font-semibold">Order Details</h1>
       </div>
 

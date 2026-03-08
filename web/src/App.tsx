@@ -30,21 +30,12 @@ export default function App() {
           <Route path="orders" element={<OrdersListPage />} />
           <Route path="orders/new" element={<CreateOrderPage />} />
           <Route path="orders/:id" element={<OrderDetailPage />} />
-          <Route path="references/clients" element={<ClientsPage />} />
-          <Route
-            path="references/nomenclature"
-            element={<NomenclaturePage />}
-          />
-          <Route path="references/employees" element={<EmployeesPage />} />
-          <Route path="references/org-units" element={<OrgUnitsPage />} />
-          <Route
-            path="references/sales-channels"
-            element={<SalesChannelsPage />}
-          />
-          <Route
-            path="references/order-statuses"
-            element={<OrderStatusesPage />}
-          />
+          <Route path="clients" element={<ClientsPage />} />
+          <Route path="nomenclature" element={<NomenclaturePage />} />
+          <Route path="employees" element={<EmployeesPage />} />
+          <Route path="org-units" element={<OrgUnitsPage />} />
+          <Route path="sales-channels" element={<SalesChannelsPage />} />
+          <Route path="order-statuses" element={<OrderStatusesPage />} />
           <Route path="reports" element={<ReportsPage />} />
         </Route>
       </Routes>

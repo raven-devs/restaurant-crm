@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
 import { Sidebar } from '@/layout/Sidebar';
-import { Button } from '@/components/ui/button';
+import { IconButton } from '@/components/IconButton';
 import { LogOut } from 'lucide-react';
 
 export function AppLayout() {
@@ -14,9 +14,9 @@ export function AppLayout() {
         <header className="flex h-12 items-center justify-end border-b px-4">
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">{user?.email}</span>
-            <Button variant="ghost" size="icon-sm" onClick={logout}>
+            <IconButton tooltip="Log out" variant="ghost" size="icon-sm" onClick={logout}>
               <LogOut className="size-4" />
-            </Button>
+            </IconButton>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto p-4">
