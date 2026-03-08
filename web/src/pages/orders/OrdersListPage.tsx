@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useOrders } from '@/hooks/useOrders';
 import { useOrderStatuses } from '@/hooks/useReferences';
@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select';
 import { DataTable, type Column } from '@/components/DataTable';
 import { STATUS_COLORS } from '@/lib/status-colors';
-import { Eye } from 'lucide-react';
+import { exportToCSV } from '@/lib/csv';
+import { Eye, Download } from 'lucide-react';
 
 export function OrdersListPage() {
   const [filters, setFilters] = useState<OrderFilters>({});
@@ -34,10 +35,23 @@ export function OrdersListPage() {
   };
   const { data, isLoading, error } = useOrders(activeFilters);
 
+  const filteredOrders = useMemo(
+    () =>
+      (data ?? [])
+        .filter((o) => !colorFilter || o.color === colorFilter)
+        .filter((o) => {
+          if (clientSearch.length < 2) return true;
+          const name = o.client?.name ?? '';
+          return name.toLowerCase().includes(clientSearch.toLowerCase());
+        }),
+    [data, colorFilter, clientSearch],
+  );
+
   const columns: Column<Order>[] = [
     {
       header: 'ID',
       accessor: (row) => `#${row.id.slice(0, 8)}`,
+      csvValue: (row) => row.id.slice(0, 8),
       sortable: false,
     },
     {
@@ -50,21 +64,25 @@ export function OrdersListPage() {
           {row.color === 'red' ? 'Overdue' : 'On track'}
         </span>
       ),
+      csvValue: (row) => (row.color === 'red' ? 'Overdue' : 'On track'),
       sortable: false,
     },
     {
       header: 'Order Date',
       accessor: (row) => new Date(row.order_date).toLocaleDateString(),
+      csvValue: (row) => row.order_date,
       sortValue: (row) => row.order_date,
     },
     {
       header: 'Client',
       accessor: (row) => row.client?.name ?? row.client_id,
+      csvValue: (row) => row.client?.name ?? '',
       sortValue: (row) => row.client?.name ?? '',
     },
     {
       header: 'Items',
       accessor: (row) => row.items?.length ?? 0,
+      csvValue: (row) => row.items?.length ?? 0,
       sortValue: (row) => row.items?.length ?? 0,
     },
     {
@@ -76,6 +94,11 @@ export function OrdersListPage() {
         );
         return total.toLocaleString('uk-UA', { minimumFractionDigits: 2 });
       },
+      csvValue: (row) =>
+        (row.items ?? []).reduce(
+          (sum, i) => sum + (i.quantity ?? 0) * (i.price_at_order ?? 0),
+          0,
+        ),
       sortValue: (row) =>
         (row.items ?? []).reduce(
           (sum, i) => sum + (i.quantity ?? 0) * (i.price_at_order ?? 0),
@@ -107,6 +130,7 @@ export function OrdersListPage() {
           </span>
         );
       },
+      csvValue: (row) => row.status?.name ?? '',
       sortValue: (row) => row.status?.name ?? '',
     },
   ];
@@ -115,9 +139,27 @@ export function OrdersListPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">Orders</h1>
-        <Button size="sm" asChild>
-          <Link to="/orders/new">New Order</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Search by client..."
+            className="w-48"
+            value={clientSearch}
+            onChange={(e) => setClientSearch(e.target.value)}
+          />
+          {filteredOrders.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportToCSV(columns, filteredOrders, 'orders')}
+            >
+              <Download className="mr-1.5 size-4" />
+              Export
+            </Button>
+          )}
+          <Button size="sm" asChild>
+            <Link to="/orders/new">New Order</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -217,12 +259,6 @@ export function OrdersListPage() {
             setFilters((p) => ({ ...p, date_to: e.target.value || undefined }))
           }
         />
-        <Input
-          placeholder="Search by client..."
-          className="w-48"
-          value={clientSearch}
-          onChange={(e) => setClientSearch(e.target.value)}
-        />
       </div>
 
       {isLoading && <p className="text-muted-foreground">Loading...</p>}
@@ -230,13 +266,7 @@ export function OrdersListPage() {
       {data && (
         <DataTable
           columns={columns}
-          data={data
-            .filter((o) => !colorFilter || o.color === colorFilter)
-            .filter((o) => {
-              if (clientSearch.length < 2) return true;
-              const name = o.client?.name ?? '';
-              return name.toLowerCase().includes(clientSearch.toLowerCase());
-            })}
+          data={filteredOrders}
           actions={(row) => (
             <IconButton tooltip="View" variant="ghost" size="icon-sm" asChild>
               <Link to={`/orders/${row.id}`}>

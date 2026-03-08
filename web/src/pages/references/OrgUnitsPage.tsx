@@ -17,6 +17,8 @@ export function OrgUnitsPage() {
       columns={columns}
       fields={fields}
       searchField="name"
+      exportFilename="org-structure"
+      createLabel="New Unit"
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

@@ -23,6 +23,8 @@ export function ClientsPage() {
       columns={columns}
       fields={fields}
       searchField="name"
+      exportFilename="clients"
+      createLabel="New Client"
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

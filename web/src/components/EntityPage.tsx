@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, Eye, EyeOff, Download } from 'lucide-react';
+import { exportToCSV } from '@/lib/csv';
 import { Button } from '@/components/ui/button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
@@ -54,6 +55,8 @@ interface EntityPageProps<T extends { id: string }> {
   updateMutation?: UseMutationResult<T, Error, { id: string; data: unknown }>;
   deleteMutation?: UseMutationResult<unknown, Error, string>;
   readOnly?: boolean;
+  exportFilename?: string;
+  createLabel?: string;
 }
 
 export function EntityPage<T extends { id: string }>({
@@ -66,6 +69,8 @@ export function EntityPage<T extends { id: string }>({
   updateMutation,
   deleteMutation,
   readOnly = false,
+  exportFilename,
+  createLabel = 'Create',
 }: EntityPageProps<T>) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<T | null>(null);
@@ -116,9 +121,19 @@ export function EntityPage<T extends { id: string }>({
               onChange={(e) => setSearch(e.target.value)}
             />
           )}
+          {exportFilename && filteredData && filteredData.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportToCSV(columns, filteredData, exportFilename)}
+            >
+              <Download className="mr-1.5 size-4" />
+              Export
+            </Button>
+          )}
           {!readOnly && createMutation && (
             <Button onClick={openCreate} size="sm">
-              Create
+              {createLabel}
             </Button>
           )}
         </div>
@@ -170,6 +185,7 @@ export function EntityPage<T extends { id: string }>({
           editingItem={editingItem}
           createMutation={createMutation}
           updateMutation={updateMutation}
+          createLabel={createLabel}
         />
       )}
 
@@ -203,6 +219,7 @@ function EntityDialog<T extends { id: string }>({
   editingItem,
   createMutation,
   updateMutation,
+  createLabel = 'Create',
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -210,6 +227,7 @@ function EntityDialog<T extends { id: string }>({
   editingItem: T | null;
   createMutation?: UseMutationResult<T, Error, unknown>;
   updateMutation?: UseMutationResult<T, Error, { id: string; data: unknown }>;
+  createLabel?: string;
 }) {
   const isEditing = editingItem !== null;
   const defaults: Record<string, string> = {};
@@ -223,7 +241,7 @@ function EntityDialog<T extends { id: string }>({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit' : 'Create'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit' : createLabel}</DialogTitle>
         </DialogHeader>
         <EntityForm
           fields={fields}

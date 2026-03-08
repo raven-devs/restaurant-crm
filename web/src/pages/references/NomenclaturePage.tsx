@@ -14,6 +14,7 @@ export function NomenclaturePage() {
     {
       header: `Price (${currency})`,
       accessor: (row) => row.price.toFixed(2),
+      csvValue: (row) => row.price,
       sortValue: (row) => row.price,
     },
   ];
@@ -30,6 +31,8 @@ export function NomenclaturePage() {
       columns={columns}
       fields={fields}
       searchField="name"
+      exportFilename="nomenclature"
+      createLabel="New Item"
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

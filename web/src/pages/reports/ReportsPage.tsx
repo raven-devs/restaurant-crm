@@ -12,6 +12,8 @@ import {
 } from '@/hooks/useReferences';
 import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { exportToCSV } from '@/lib/csv';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -65,11 +67,13 @@ export function ReportsPage() {
     {
       header: 'ID',
       accessor: (row) => `#${row.id.slice(0, 8)}`,
+      csvValue: (row) => row.id.slice(0, 8),
       sortable: false,
     },
     {
       header: 'Order Date',
       accessor: (row) => new Date(row.order_date).toLocaleDateString(),
+      csvValue: (row) => row.order_date,
       sortValue: (row) => row.order_date,
     },
     { header: 'Client', accessor: 'client_name' },
@@ -79,6 +83,7 @@ export function ReportsPage() {
       header: `Total (${currency})`,
       accessor: (row) =>
         row.total.toLocaleString('uk-UA', { minimumFractionDigits: 2 }),
+      csvValue: (row) => row.total,
       sortValue: (row) => row.total,
       totalValue: (rows) =>
         rows
@@ -96,18 +101,36 @@ export function ReportsPage() {
           {row.status_name}
         </span>
       ),
+      csvValue: (row) => row.status_name,
       sortValue: (row) => row.status_name,
     },
-    { header: 'Accepted By', accessor: (row) => row.accepted_by_name ?? '—' },
+    {
+      header: 'Accepted By',
+      accessor: (row) => row.accepted_by_name ?? '—',
+      csvValue: (row) => row.accepted_by_name ?? '',
+    },
     {
       header: 'Time Since Creation',
       accessor: (row) => formatMinutes(row.time_since_creation),
+      csvValue: (row) => formatMinutes(row.time_since_creation),
     },
   ];
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-semibold">Reports</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold">Reports</h1>
+        {data && data.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportToCSV(columns, data, 'report')}
+          >
+            <Download className="mr-1.5 size-4" />
+            Export
+          </Button>
+        )}
+      </div>
 
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col gap-1">

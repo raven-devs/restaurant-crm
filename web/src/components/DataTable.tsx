@@ -23,6 +23,7 @@ export interface Column<T> {
   sortable?: boolean;
   sortValue?: (row: T) => string | number;
   totalValue?: (rows: T[]) => React.ReactNode;
+  csvValue?: (row: T) => string | number | null;
   className?: string;
 }
 

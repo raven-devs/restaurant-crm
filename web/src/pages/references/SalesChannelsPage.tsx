@@ -17,6 +17,8 @@ export function SalesChannelsPage() {
       columns={columns}
       fields={fields}
       searchField="name"
+      exportFilename="sales-channels"
+      createLabel="New Channel"
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

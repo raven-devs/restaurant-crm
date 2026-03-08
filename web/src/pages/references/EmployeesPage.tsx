@@ -9,11 +9,13 @@ const columns: Column<Employee>[] = [
   {
     header: 'Email',
     accessor: (row) => row.email ?? '—',
+    csvValue: (row) => row.email ?? '',
     sortValue: (row) => row.email ?? '',
   },
   {
     header: 'Department',
     accessor: (row) => row.org_unit?.name ?? '—',
+    csvValue: (row) => row.org_unit?.name ?? '',
     sortValue: (row) => row.org_unit?.name ?? '',
   },
 ];
@@ -53,6 +55,8 @@ export function EmployeesPage() {
       columns={columns}
       fields={fields}
       searchField="name"
+      exportFilename="employees"
+      createLabel="New Employee"
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}
