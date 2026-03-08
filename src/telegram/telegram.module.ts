@@ -25,5 +25,6 @@ import { SalesChannelsModule } from '../sales-channels/sales-channels.module';
     SalesChannelsModule,
   ],
   providers: [TelegramUpdate, TelegramService, NewOrderScene],
+  exports: [TelegramService],
 })
 export class TelegramModule {}

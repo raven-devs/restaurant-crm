@@ -84,7 +84,7 @@ export class OrdersService {
       .getClient()
       .from('orders')
       .select(
-        '*, client:clients(*), status:order_statuses(*), sales_channel:sales_channels(*), items:order_items(id)',
+        '*, client:clients(*), status:order_statuses(*), sales_channel:sales_channels(*), items:order_items(id, quantity, price_at_order)',
       )
       .order('created_at', { ascending: false });
 
@@ -176,6 +176,25 @@ export class OrdersService {
     if (updateError) throw updateError;
 
     return updatedOrder;
+  }
+
+  async remove(id: string) {
+    const client = this.supabase.getClient();
+
+    const { error: itemsError } = await client
+      .from('order_items')
+      .delete()
+      .eq('order_id', id);
+    if (itemsError) throw itemsError;
+
+    const { error: historyError } = await client
+      .from('order_status_history')
+      .delete()
+      .eq('order_id', id);
+    if (historyError) throw historyError;
+
+    const { error } = await client.from('orders').delete().eq('id', id);
+    if (error) throw error;
   }
 
   async addItem(orderId: string, dto: CreateOrderItemDto) {

@@ -21,6 +21,7 @@ import {
   updateSalesChannel,
   deleteSalesChannel,
   getOrderStatuses,
+  updateOrderStatus,
 } from '@/api/references';
 
 function useCrudHooks<T>(
@@ -106,5 +107,10 @@ export function useSalesChannels() {
 }
 
 export function useOrderStatuses() {
-  return useQuery({ queryKey: ['order-statuses'], queryFn: getOrderStatuses });
+  return useCrudHooks(
+    'order-statuses',
+    getOrderStatuses,
+    undefined,
+    updateOrderStatus,
+  );
 }

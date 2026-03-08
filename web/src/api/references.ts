@@ -32,11 +32,14 @@ export interface SalesChannel {
 export interface OrderStatus {
   id: string;
   name: string;
-  previous_status: string | null;
-  next_status: string | null;
-  max_time_without_confirmation: number | null;
+  previous_status_id: string | null;
+  next_status_id: string | null;
+  previous_status_name: string | null;
+  next_status_name: string | null;
+  max_time_unconfirmed: number | null;
   max_time_in_status: number | null;
-  escalation: string | null;
+  escalation_action: string | null;
+  sort_order: number;
 }
 
 export const getClients = () => apiFetch<Client[]>('/clients');
@@ -119,3 +122,11 @@ export const deleteSalesChannel = (id: string) =>
 
 export const getOrderStatuses = () =>
   apiFetch<OrderStatus[]>('/order-statuses');
+export const updateOrderStatus = (
+  id: string,
+  data: Partial<Omit<OrderStatus, 'id'>>,
+) =>
+  apiFetch<OrderStatus>(`/order-statuses/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });

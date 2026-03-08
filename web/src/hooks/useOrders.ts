@@ -3,6 +3,7 @@ import {
   getOrders,
   getOrder,
   createOrder,
+  deleteOrder,
   advanceOrderStatus,
   type OrderFilters,
   type CreateOrderPayload,
@@ -27,6 +28,14 @@ export function useCreateOrder() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateOrderPayload) => createOrder(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),
+  });
+}
+
+export function useDeleteOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteOrder(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['orders'] }),
   });
 }

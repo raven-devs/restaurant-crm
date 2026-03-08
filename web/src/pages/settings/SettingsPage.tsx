@@ -1,7 +1,20 @@
+import { toast } from 'sonner';
+import { useSettings } from '@/hooks/useSettings';
 import { useOrderStatuses } from '@/hooks/useReferences';
+import { EntityPage, type FieldDef } from '@/components/EntityPage';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { Column } from '@/components/DataTable';
 import type { OrderStatus } from '@/api/references';
-import { EntityPage, type FieldDef } from '@/components/EntityPage';
+
+const currencies = ['UAH', 'USD', 'EUR'];
 
 const escalationLabels: Record<string, string> = {
   send_telegram_alert: 'Telegram Alert',
@@ -10,7 +23,7 @@ const escalationLabels: Record<string, string> = {
   none: 'None',
 };
 
-const columns: Column<OrderStatus>[] = [
+const statusColumns: Column<OrderStatus>[] = [
   { header: 'Status', accessor: 'name', sortable: false },
   {
     header: 'Previous',
@@ -42,7 +55,7 @@ const columns: Column<OrderStatus>[] = [
   },
 ];
 
-const fields: FieldDef[] = [
+const statusFields: FieldDef[] = [
   {
     name: 'max_time_unconfirmed',
     label: 'Max Unconfirmed (min)',
@@ -74,16 +87,57 @@ const fields: FieldDef[] = [
   },
 ];
 
-export function OrderStatusesPage() {
-  const { query, update } = useOrderStatuses();
+export function SettingsPage() {
+  const { settings, update } = useSettings();
+  const { query: statusQuery, update: statusUpdate } = useOrderStatuses();
+
+  const handleCurrencyChange = (value: string) => {
+    update.mutate(
+      { currency: value },
+      {
+        onSuccess: () => toast.success('Currency updated'),
+        onError: (err) => toast.error(err.message),
+      },
+    );
+  };
 
   return (
-    <EntityPage
-      title="Order Statuses"
-      query={query}
-      columns={columns}
-      fields={fields}
-      updateMutation={update}
-    />
+    <div className="flex flex-col gap-6">
+      <h1 className="text-lg font-semibold">Settings</h1>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>General</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex max-w-xs flex-col gap-1.5">
+            <Label>Currency</Label>
+            <Select
+              value={settings?.currency ?? 'UAH'}
+              onValueChange={handleCurrencyChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {currencies.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <EntityPage
+        title="Order Statuses"
+        query={statusQuery}
+        columns={statusColumns}
+        fields={statusFields}
+        updateMutation={statusUpdate}
+      />
+    </div>
   );
 }

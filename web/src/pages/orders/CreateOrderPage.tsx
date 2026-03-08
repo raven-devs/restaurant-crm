@@ -8,6 +8,7 @@ import {
   useNomenclature,
   useSalesChannels,
 } from '@/hooks/useReferences';
+import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,8 @@ export function CreateOrderPage() {
   const { query: clientsQuery } = useClients();
   const { query: nomenclatureQuery } = useNomenclature();
   const { query: channelsQuery } = useSalesChannels();
+  const { settings } = useSettings();
+  const currency = settings?.currency ?? 'UAH';
 
   const { handleSubmit } = useForm<OrderFormValues>();
   const [clientId, setClientId] = useState('');
@@ -151,6 +154,13 @@ export function CreateOrderPage() {
                     {nom?.name ?? item.nomenclature_item_id}
                   </span>
                   <span className="text-sm text-muted-foreground">
+                    {((nom?.price ?? 0) * item.quantity).toLocaleString(
+                      'uk-UA',
+                      { minimumFractionDigits: 2 },
+                    )}{' '}
+                    {currency}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
                     x{item.quantity}
                   </span>
                   <IconButton
@@ -158,6 +168,7 @@ export function CreateOrderPage() {
                     type="button"
                     variant="ghost"
                     size="icon-xs"
+                    className="hover:bg-red-100 hover:text-red-600"
                     onClick={() => removeItem(idx)}
                   >
                     <Trash2 />
@@ -166,6 +177,22 @@ export function CreateOrderPage() {
               );
             })}
 
+            {items.length > 0 && (
+              <div className="flex items-center justify-between border-t pt-2 text-sm font-semibold">
+                <span>Total ({currency})</span>
+                <span>
+                  {items
+                    .reduce((sum, item) => {
+                      const nom = nomenclatureMap.get(
+                        item.nomenclature_item_id,
+                      );
+                      return sum + (nom?.price ?? 0) * item.quantity;
+                    }, 0)
+                    .toLocaleString('uk-UA', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
+
             <div className="flex items-end gap-2">
               <div className="flex flex-1 flex-col gap-1.5">
                 <Label>Product</Label>
@@ -173,14 +200,14 @@ export function CreateOrderPage() {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select product">
                       {selectedNewItem
-                        ? `${selectedNewItem.name} — ${selectedNewItem.price} UAH`
+                        ? `${selectedNewItem.name} — ${selectedNewItem.price} ${currency}`
                         : undefined}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {nomenclatureQuery.data?.map((n) => (
                       <SelectItem key={n.id} value={n.id}>
-                        {n.name} — {n.price} UAH
+                        {n.name} — {n.price} {currency}
                       </SelectItem>
                     ))}
                   </SelectContent>

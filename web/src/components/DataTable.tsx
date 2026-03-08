@@ -10,6 +10,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -21,6 +22,7 @@ export interface Column<T> {
   accessor: keyof T | ((row: T) => React.ReactNode);
   sortable?: boolean;
   sortValue?: (row: T) => string | number;
+  totalValue?: (rows: T[]) => React.ReactNode;
   className?: string;
 }
 
@@ -149,15 +151,33 @@ export function DataTable<T extends { id: string }>({
             ))
           )}
         </TableBody>
+        {sortedData.length > 0 && columns.some((c) => c.totalValue) && (
+          <TableFooter>
+            <TableRow className="font-semibold">
+              {columns.map((col) => (
+                <TableCell key={col.header} className={col.className}>
+                  {col.totalValue ? col.totalValue(sortedData) : null}
+                </TableCell>
+              ))}
+              {actions && <TableCell />}
+            </TableRow>
+          </TableFooter>
+        )}
       </Table>
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-1">
-          <span className="text-xs text-muted-foreground">
-            {safeePage * pageSize + 1}–
-            {Math.min((safeePage + 1) * pageSize, sortedData.length)} of{' '}
-            {sortedData.length}
-          </span>
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs text-muted-foreground">
+          {totalPages > 1 ? (
+            <>
+              {safeePage * pageSize + 1}–
+              {Math.min((safeePage + 1) * pageSize, sortedData.length)} of{' '}
+              {sortedData.length}
+            </>
+          ) : (
+            <>{sortedData.length} total</>
+          )}
+        </span>
+        {totalPages > 1 && (
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
@@ -179,8 +199,8 @@ export function DataTable<T extends { id: string }>({
               <ChevronRight />
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

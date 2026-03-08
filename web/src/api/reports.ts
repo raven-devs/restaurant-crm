@@ -15,6 +15,7 @@ export interface ReportRow {
   client_name: string;
   client_phone: string;
   items_count: number;
+  total: number;
   sales_channel_name: string;
   status_name: string;
   accepted_by_name: string | null;

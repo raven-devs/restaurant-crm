@@ -30,7 +30,18 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('me')
-  me(@Req() request: Request) {
-    return (request as unknown as Record<string, unknown>)['user'];
+  async me(@Req() request: Request) {
+    const authUser = (request as unknown as Record<string, unknown>)[
+      'user'
+    ] as {
+      id: string;
+      email: string;
+    };
+    const profile = await this.authService.getProfile(authUser.id);
+    return {
+      id: authUser.id,
+      email: authUser.email,
+      ...profile,
+    };
   }
 }

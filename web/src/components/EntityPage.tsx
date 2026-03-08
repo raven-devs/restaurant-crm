@@ -36,6 +36,7 @@ import { DataTable, type Column } from '@/components/DataTable';
 export interface FieldDef {
   name: string;
   label: string;
+  description?: string;
   type?: 'text' | 'number' | 'tel' | 'email' | 'select';
   options?: { value: string; label: string }[];
   required?: boolean;
@@ -136,7 +137,7 @@ export function EntityPage<T extends { id: string }>({
                       <IconButton
                         tooltip="Edit"
                         variant="ghost"
-                        size="icon-xs"
+                        size="icon-sm"
                         onClick={() => openEdit(row)}
                       >
                         <Pencil />
@@ -146,7 +147,8 @@ export function EntityPage<T extends { id: string }>({
                       <IconButton
                         tooltip="Delete"
                         variant="ghost"
-                        size="icon-xs"
+                        size="icon-sm"
+                        className="hover:bg-red-100 hover:text-red-600"
                         onClick={() => setDeleteId(row.id)}
                       >
                         <Trash2 />
@@ -278,8 +280,13 @@ function EntityForm({
   const processSubmit = (data: Record<string, string>) => {
     const processed: Record<string, unknown> = {};
     for (const f of fields) {
-      processed[f.name] =
-        f.type === 'number' ? Number(data[f.name]) : data[f.name];
+      if (f.type === 'number') {
+        const val = data[f.name];
+        processed[f.name] =
+          val === '' || val === undefined ? null : Number(val);
+      } else {
+        processed[f.name] = data[f.name];
+      }
     }
     onSubmit(processed);
   };
@@ -292,6 +299,9 @@ function EntityForm({
       {fields.map((f) => (
         <div key={f.name} className="flex flex-col gap-1.5">
           <Label htmlFor={f.name}>{f.label}</Label>
+          {f.description && (
+            <p className="text-xs text-muted-foreground">{f.description}</p>
+          )}
           {f.type === 'select' ? (
             <Controller
               name={f.name}

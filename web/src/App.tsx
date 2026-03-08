@@ -10,8 +10,8 @@ import { NomenclaturePage } from '@/pages/references/NomenclaturePage';
 import { EmployeesPage } from '@/pages/references/EmployeesPage';
 import { OrgUnitsPage } from '@/pages/references/OrgUnitsPage';
 import { SalesChannelsPage } from '@/pages/references/SalesChannelsPage';
-import { OrderStatusesPage } from '@/pages/references/OrderStatusesPage';
 import { ReportsPage } from '@/pages/reports/ReportsPage';
+import { SettingsPage } from '@/pages/settings/SettingsPage';
 
 export default function App() {
   return (
@@ -35,8 +35,12 @@ export default function App() {
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="org-units" element={<OrgUnitsPage />} />
           <Route path="sales-channels" element={<SalesChannelsPage />} />
-          <Route path="order-statuses" element={<OrderStatusesPage />} />
+          <Route
+            path="order-statuses"
+            element={<Navigate to="/settings" replace />}
+          />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

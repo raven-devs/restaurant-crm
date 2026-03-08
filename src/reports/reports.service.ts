@@ -25,7 +25,7 @@ export class ReportsService {
         status:order_statuses(name),
         sales_channel:sales_channels(name),
         accepted_by:employees(name),
-        items:order_items(id)
+        items:order_items(id, quantity, price_at_order)
       `,
       )
       .order('created_at', { ascending: false });
@@ -47,6 +47,11 @@ export class ReportsService {
       client_name: order.client?.name ?? '—',
       client_phone: order.client?.phone ?? '—',
       items_count: order.items?.length ?? 0,
+      total: (order.items ?? []).reduce(
+        (sum: number, i: any) =>
+          sum + (i.quantity ?? 0) * (i.price_at_order ?? 0),
+        0,
+      ),
       sales_channel_name: order.sales_channel?.name ?? '—',
       status_name: order.status?.name ?? '—',
       accepted_by_name: order.accepted_by?.name ?? null,

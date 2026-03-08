@@ -122,7 +122,7 @@ Reference Tables
   GET/POST/PATCH/DELETE  /api/employees
   GET/POST/PATCH/DELETE  /api/org-structure
   GET/POST/PATCH/DELETE  /api/sales-channels
-  GET                    /api/order-statuses
+  GET/PATCH              /api/order-statuses
 ```
 
 ## Order Workflow
@@ -131,7 +131,75 @@ Reference Tables
 New → Accepted → In Production → Ready → Closed
 ```
 
-Each transition is enforced by the backend based on the order status linked list (previous/next status). Status history is tracked in `order_status_history` with timestamps for reporting.
+Each transition is enforced by the backend based on the order status linked list (previous/next status). Status history is tracked in `order_status_history` with timestamps for reporting. Transitioning to a new status resets the order color to green.
+
+## Order Monitoring & Escalation
+
+A background job (`@nestjs/schedule`, 60-second interval) monitors orders for time limit violations.
+
+### Order Health
+
+Each order has a color indicator shown in the orders list and detail pages:
+
+- **Green (On track)** — the order is within the configured time limits for its current status
+- **Red (Overdue)** — the order has exceeded either the unconfirmed or in-status time limit
+
+When an order exceeds a time limit, its color flips from green to red. Once the order advances to the next status, color resets to green.
+
+### Time Limits
+
+Each order status can have two optional time limits (in minutes), configured via the Order Statuses reference page:
+
+- **Max Unconfirmed (min)** — maximum time an order can stay in a status without being acknowledged by a responsible person. Used for statuses that require acceptance (e.g. New, Accepted).
+- **Max In Status (min)** — maximum time an order can remain in a status before it is considered overdue. Used for statuses where active work is happening (e.g. In Production, Ready).
+
+If either limit is exceeded, the order is marked as overdue (red).
+
+### Escalation Actions
+
+When a time limit is exceeded, the system can send an alert depending on the configured escalation action:
+
+```
+Action                          Behavior
+─────────────────────────────────────────────────────────────────
+Telegram Alert                  Sends a warning to the Telegram group
+Telegram Manager Alert          Sends a manager-tagged alert (👔 prefix)
+Telegram Escalation             Sends an escalation-flagged alert (🔺 prefix)
+None                            No alert sent, order is still marked red
+```
+
+Alerts are sent once per status (on the green → red transition). The monitoring job does not automatically transition orders — it only flags and alerts. Status transitions remain manual (via web UI or Telegram bot).
+
+### Default Configuration
+
+```
+Status            Max Unconfirmed   Max In Status   Escalation
+─────────────────────────────────────────────────────────────────
+New               10 min            30 min          Telegram Alert
+Accepted          15 min            60 min          Telegram Manager Alert
+In Production     —                 480 min         Telegram Escalation
+Ready             —                 120 min         Telegram Alert
+Closed            —                 —               None
+```
+
+### How It Works
+
+```mathematica
+Order Created (color = green)
+   ↓
+[Every 60 seconds the monitoring job runs]
+   ↓
+For each green order (not Closed):
+   ├─ Calculate elapsed time in current status
+   ├─ Compare against max_time_unconfirmed and max_time_in_status
+   ├─ If within limits → stay green
+   └─ If exceeded:
+       ├─ Mark order as red (overdue)
+       └─ Send Telegram alert (based on escalation action)
+   ↓
+Order Advanced to Next Status
+   └─ Color resets to green
+```
 
 ## Telegram Bot
 

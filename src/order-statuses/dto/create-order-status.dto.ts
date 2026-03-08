@@ -13,13 +13,13 @@ export class CreateOrderStatusDto {
   @IsOptional()
   next_status_id?: string;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  max_time_unconfirmed?: string;
+  max_time_unconfirmed?: number;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  max_time_in_status?: string;
+  max_time_in_status?: number;
 
   @IsString()
   @IsOptional()

@@ -25,4 +25,20 @@ export class AuthService {
     if (error) throw new UnauthorizedException(error.message);
     return data.user;
   }
+
+  async getProfile(userId: string) {
+    const { data } = await this.supabase
+      .getClient()
+      .from('employees')
+      .select('id, name, org_units(name)')
+      .eq('user_id', userId)
+      .single();
+
+    return {
+      employee_id: data?.id ?? null,
+      employee_name: data?.name ?? null,
+      org_unit_name:
+        (data?.org_units as unknown as { name: string })?.name ?? null,
+    };
+  }
 }

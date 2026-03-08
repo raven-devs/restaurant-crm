@@ -10,6 +10,9 @@ import { apiFetch } from '@/lib/api';
 interface User {
   id: string;
   email: string;
+  employee_id: string | null;
+  employee_name: string | null;
+  org_unit_name: string | null;
 }
 
 interface AuthContextType {
@@ -40,15 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const session = await apiFetch<{ access_token: string; user: User }>(
-      '/auth/login',
-      {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-      },
-    );
+    const session = await apiFetch<{ access_token: string }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
     localStorage.setItem('access_token', session.access_token);
-    setUser(session.user);
+    const profile = await apiFetch<User>('/auth/me');
+    setUser(profile);
   };
 
   const logout = async () => {

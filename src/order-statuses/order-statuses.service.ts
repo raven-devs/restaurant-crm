@@ -14,9 +14,15 @@ export class OrderStatusesService {
       .getClient()
       .from(this.table)
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('sort_order', { ascending: true });
     if (error) throw error;
-    return data;
+
+    const nameMap = new Map(data.map((s: any) => [s.id, s.name]));
+    return data.map((s: any) => ({
+      ...s,
+      previous_status_name: nameMap.get(s.previous_status_id) ?? null,
+      next_status_name: nameMap.get(s.next_status_id) ?? null,
+    }));
   }
 
   async findOne(id: string) {

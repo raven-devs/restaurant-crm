@@ -41,6 +41,11 @@ export class OrdersController {
     return this.ordersService.create(dto);
   }
 
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.ordersService.remove(id);
+  }
+
   @Patch(':id/status')
   transitionStatus(
     @Param('id') id: string,

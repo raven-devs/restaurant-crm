@@ -7,9 +7,10 @@ import {
   UserCog,
   Building2,
   Megaphone,
-  ListChecks,
   BarChart3,
+  Settings,
 } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 const navItems = [
   { to: '/orders', label: 'Orders', icon: ShoppingCart },
@@ -18,7 +19,6 @@ const navItems = [
   { to: '/employees', label: 'Employees', icon: UserCog },
   { to: '/org-units', label: 'Org Structure', icon: Building2 },
   { to: '/sales-channels', label: 'Sales Channels', icon: Megaphone },
-  { to: '/order-statuses', label: 'Order Statuses', icon: ListChecks },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
 ];
 
@@ -48,6 +48,21 @@ export function Sidebar() {
             {item.label}
           </NavLink>
         ))}
+        <Separator className="my-1" />
+        <NavLink
+          to="/settings"
+          className={({ isActive }) =>
+            cn(
+              'flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors',
+              isActive
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent/50',
+            )
+          }
+        >
+          <Settings className="size-4" />
+          Settings
+        </NavLink>
       </nav>
     </aside>
   );

@@ -12,6 +12,7 @@ export interface OrderItem {
   nomenclature_item_id: string;
   nomenclature_item?: NomenclatureItem;
   quantity: number;
+  price_at_order?: number;
 }
 
 export interface Order {
@@ -27,6 +28,7 @@ export interface Order {
   accepted_by_id: string | null;
   accepted_by?: Employee | null;
   order_point_id: string | null;
+  color: 'green' | 'red';
   items: OrderItem[];
 }
 
@@ -62,6 +64,10 @@ export function createOrder(data: CreateOrderPayload) {
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+export function deleteOrder(id: string) {
+  return apiFetch(`/orders/${id}`, { method: 'DELETE' });
 }
 
 export function advanceOrderStatus(orderId: string, employeeId?: string) {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ConfigModule } from './config/config.module';
 import { SupabaseModule } from './supabase/supabase.module';
 import { ClientsModule } from './clients/clients.module';
@@ -11,11 +12,14 @@ import { OrdersModule } from './orders/orders.module';
 import { AuthModule } from './auth/auth.module';
 import { ReportsModule } from './reports/reports.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { OrderMonitoringModule } from './order-monitoring/order-monitoring.module';
+import { AppSettingsModule } from './app-settings/app-settings.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule,
     SupabaseModule,
     ClientsModule,
@@ -28,6 +32,8 @@ import { AppService } from './app.service';
     AuthModule,
     ReportsModule,
     TelegramModule,
+    OrderMonitoringModule,
+    AppSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

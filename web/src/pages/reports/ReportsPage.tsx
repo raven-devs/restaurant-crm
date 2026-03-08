@@ -10,6 +10,7 @@ import {
   useClients,
   useSalesChannels,
 } from '@/hooks/useReferences';
+import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,6 +21,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { DataTable, type Column } from '@/components/DataTable';
+import { STATUS_COLORS } from '@/lib/status-colors';
 
 function formatMinutes(mins: number | null): string {
   if (mins === null || mins === undefined) return '—';
@@ -29,32 +31,18 @@ function formatMinutes(mins: number | null): string {
   return `${h}h ${m}m`;
 }
 
-const columns: Column<ReportRow>[] = [
-  {
-    header: 'Date',
-    accessor: (row) => new Date(row.order_date).toLocaleDateString(),
-  },
-  { header: 'Client', accessor: 'client_name' },
-  { header: 'Phone', accessor: 'client_phone' },
-  { header: 'Items', accessor: 'items_count' },
-  { header: 'Channel', accessor: 'sales_channel_name' },
-  { header: 'Status', accessor: 'status_name' },
-  { header: 'Accepted By', accessor: (row) => row.accepted_by_name ?? '—' },
-  {
-    header: 'Time Since Creation',
-    accessor: (row) => formatMinutes(row.time_since_creation),
-  },
-];
-
 export function ReportsPage() {
   const [filters, setFilters] = useState<ReportFilters>({});
   const [statusFilter, setStatusFilter] = useState('');
   const [clientFilter, setClientFilter] = useState('');
   const [channelFilter, setChannelFilter] = useState('');
 
-  const { data: statuses } = useOrderStatuses();
+  const { query: statusesQuery } = useOrderStatuses();
+  const statuses = statusesQuery.data;
   const { query: clientsQuery } = useClients();
   const { query: channelsQuery } = useSalesChannels();
+  const { settings } = useSettings();
+  const currency = settings?.currency ?? 'UAH';
 
   const activeFilters: ReportFilters = {
     ...filters,
@@ -72,6 +60,50 @@ export function ReportsPage() {
   const handleApply = () => {
     refetch();
   };
+
+  const columns: Column<ReportRow>[] = [
+    {
+      header: 'ID',
+      accessor: (row) => `#${row.id.slice(0, 8)}`,
+      sortable: false,
+    },
+    {
+      header: 'Order Date',
+      accessor: (row) => new Date(row.order_date).toLocaleDateString(),
+      sortValue: (row) => row.order_date,
+    },
+    { header: 'Client', accessor: 'client_name' },
+    { header: 'Phone', accessor: 'client_phone' },
+    { header: 'Items', accessor: 'items_count' },
+    {
+      header: `Total (${currency})`,
+      accessor: (row) =>
+        row.total.toLocaleString('uk-UA', { minimumFractionDigits: 2 }),
+      sortValue: (row) => row.total,
+      totalValue: (rows) =>
+        rows
+          .reduce((sum, r) => sum + r.total, 0)
+          .toLocaleString('uk-UA', { minimumFractionDigits: 2 }),
+    },
+    { header: 'Channel', accessor: 'sales_channel_name' },
+    {
+      header: 'Status',
+      accessor: (row) => (
+        <span className="inline-flex items-center gap-1.5 text-sm">
+          <span
+            className={`inline-block size-2 rounded-full ${STATUS_COLORS[row.status_name] ?? 'bg-gray-400'}`}
+          />
+          {row.status_name}
+        </span>
+      ),
+      sortValue: (row) => row.status_name,
+    },
+    { header: 'Accepted By', accessor: (row) => row.accepted_by_name ?? '—' },
+    {
+      header: 'Time Since Creation',
+      accessor: (row) => formatMinutes(row.time_since_creation),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,14 +143,34 @@ export function ReportsPage() {
           value={statusFilter}
           onValueChange={(val) => setStatusFilter(val === '__all__' ? '' : val)}
         >
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Status">
+              {statusFilter
+                ? (() => {
+                    const s = statuses?.find((s) => s.id === statusFilter);
+                    if (!s) return undefined;
+                    return (
+                      <span className="flex items-center gap-2">
+                        <span
+                          className={`inline-block size-2 rounded-full ${STATUS_COLORS[s.name] ?? 'bg-gray-400'}`}
+                        />
+                        {s.name}
+                      </span>
+                    );
+                  })()
+                : undefined}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">All statuses</SelectItem>
             {statuses?.map((s) => (
               <SelectItem key={s.id} value={s.id}>
-                {s.name}
+                <span className="flex items-center gap-2">
+                  <span
+                    className={`inline-block size-2 rounded-full ${STATUS_COLORS[s.name] ?? 'bg-gray-400'}`}
+                  />
+                  {s.name}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -129,7 +181,11 @@ export function ReportsPage() {
           onValueChange={(val) => setClientFilter(val === '__all__' ? '' : val)}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Client" />
+            <SelectValue placeholder="Client">
+              {clientFilter
+                ? clientsQuery.data?.find((c) => c.id === clientFilter)?.name
+                : undefined}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">All clients</SelectItem>
@@ -148,7 +204,12 @@ export function ReportsPage() {
           }
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Channel" />
+            <SelectValue placeholder="Channel">
+              {channelFilter
+                ? channelsQuery.data?.find((ch) => ch.id === channelFilter)
+                    ?.name
+                : undefined}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">All channels</SelectItem>
