@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
@@ -13,7 +17,7 @@ export class EmployeesService {
     const { data, error } = await this.supabase
       .getClient()
       .from(this.table)
-      .select('*')
+      .select('*, org_unit:org_units(name)')
       .order('created_at', { ascending: false });
     if (error) throw error;
     return data;

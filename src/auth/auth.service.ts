@@ -6,9 +6,11 @@ export class AuthService {
   constructor(private readonly supabase: SupabaseService) {}
 
   async login(email: string, password: string) {
-    const { data, error } = await this.supabase
-      .getClient()
-      .auth.signInWithPassword({ email, password });
+    const authClient = this.supabase.createAuthClient();
+    const { data, error } = await authClient.auth.signInWithPassword({
+      email,
+      password,
+    });
     if (error) throw new UnauthorizedException(error.message);
     return data.session;
   }

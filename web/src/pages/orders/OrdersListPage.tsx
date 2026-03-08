@@ -43,14 +43,17 @@ export function OrdersListPage() {
     {
       header: 'Date',
       accessor: (row) => new Date(row.order_date).toLocaleDateString(),
+      sortValue: (row) => row.order_date,
     },
     {
       header: 'Client',
       accessor: (row) => row.client?.name ?? row.client_id,
+      sortValue: (row) => row.client?.name ?? '',
     },
     {
       header: 'Items',
       accessor: (row) => row.items?.length ?? 0,
+      sortValue: (row) => row.items?.length ?? 0,
     },
     {
       header: 'Status',
@@ -58,6 +61,7 @@ export function OrdersListPage() {
         const name = row.status?.name ?? '—';
         return <Badge variant={statusVariant[name] ?? 'outline'}>{name}</Badge>;
       },
+      sortValue: (row) => row.status?.name ?? '',
     },
   ];
 

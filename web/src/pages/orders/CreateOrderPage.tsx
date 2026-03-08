@@ -92,6 +92,10 @@ export function CreateOrderPage() {
     (nomenclatureQuery.data ?? []).map((n) => [n.id, n]),
   );
 
+  const selectedClient = clientsQuery.data?.find((c) => c.id === clientId);
+  const selectedChannel = channelsQuery.data?.find((ch) => ch.id === channelId);
+  const selectedNewItem = nomenclatureMap.get(newItemId);
+
   return (
     <div className="mx-auto max-w-lg">
       <h1 className="mb-4 text-lg font-semibold">New Order</h1>
@@ -100,7 +104,11 @@ export function CreateOrderPage() {
           <Label>Client</Label>
           <Select value={clientId} onValueChange={setClientId}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select client" />
+              <SelectValue placeholder="Select client">
+                {selectedClient
+                  ? `${selectedClient.name} (${selectedClient.phone})`
+                  : undefined}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {clientsQuery.data?.map((c) => (
@@ -116,7 +124,9 @@ export function CreateOrderPage() {
           <Label>Sales Channel</Label>
           <Select value={channelId} onValueChange={setChannelId}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select channel" />
+              <SelectValue placeholder="Select channel">
+                {selectedChannel?.name}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {channelsQuery.data?.map((ch) => (
@@ -157,11 +167,15 @@ export function CreateOrderPage() {
             })}
 
             <div className="flex items-end gap-2">
-              <div className="flex-1">
+              <div className="flex flex-1 flex-col gap-1.5">
                 <Label>Product</Label>
                 <Select value={newItemId} onValueChange={setNewItemId}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select product" />
+                    <SelectValue placeholder="Select product">
+                      {selectedNewItem
+                        ? `${selectedNewItem.name} — ${selectedNewItem.price} UAH`
+                        : undefined}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {nomenclatureQuery.data?.map((n) => (
@@ -172,7 +186,7 @@ export function CreateOrderPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="w-20">
+              <div className="flex w-20 flex-col gap-1.5">
                 <Label>Qty</Label>
                 <Input
                   type="number"

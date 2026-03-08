@@ -22,6 +22,7 @@ export function ClientsPage() {
       query={query}
       columns={columns}
       fields={fields}
+      searchField="name"
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

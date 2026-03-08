@@ -15,7 +15,8 @@ export interface NomenclatureItem {
 export interface Employee {
   id: string;
   name: string;
-  department: string;
+  org_unit_id: string;
+  org_unit?: { name: string };
 }
 
 export interface OrgUnit {

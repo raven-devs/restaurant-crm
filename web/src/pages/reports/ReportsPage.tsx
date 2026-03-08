@@ -66,7 +66,7 @@ export function ReportsPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['reports', activeFilters],
     queryFn: () => getOrdersReport(activeFilters),
-    enabled: false,
+    enabled: true,
   });
 
   const handleApply = () => {

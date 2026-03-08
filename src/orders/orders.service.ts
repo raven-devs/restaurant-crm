@@ -84,7 +84,7 @@ export class OrdersService {
       .getClient()
       .from('orders')
       .select(
-        '*, client:clients(*), status:order_statuses(*), sales_channel:sales_channels(*)',
+        '*, client:clients(*), status:order_statuses(*), sales_channel:sales_channels(*), items:order_items(id)',
       )
       .order('created_at', { ascending: false });
 
