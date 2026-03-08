@@ -11,7 +11,7 @@ import { useOrderStatuses } from '@/hooks/useReferences';
 import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/button';
 import { IconButton } from '@/components/IconButton';
-import { STATUS_COLORS, STATUS_BUTTON_COLORS } from '@/lib/status-colors';
+import { STATUS_BUTTON_COLORS, STATUS_TAG_COLORS } from '@/lib/status-colors';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -71,13 +71,26 @@ export function OrderDetailPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <IconButton tooltip="Back" variant="ghost" size="icon-sm" asChild>
           <Link to="/orders">
             <ArrowLeft />
           </Link>
         </IconButton>
         <h1 className="text-lg font-semibold">Order Details</h1>
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${STATUS_TAG_COLORS[statusName] ?? 'bg-gray-100 text-gray-600'}`}
+        >
+          {statusName}
+        </span>
+        <span
+          className={`inline-flex items-center gap-1.5 text-sm ${order.color === 'red' ? 'text-red-600' : 'text-green-600'}`}
+        >
+          <span
+            className={`inline-block size-3 rounded-full ${order.color === 'red' ? 'bg-red-500' : 'bg-green-500'}`}
+          />
+          {order.color === 'red' ? 'Overdue' : 'On track'}
+        </span>
       </div>
 
       <Card>
@@ -94,27 +107,6 @@ export function OrderDetailPage() {
             <dd>{order.client?.name ?? order.client_id}</dd>
             <dt className="text-muted-foreground">Sales Channel</dt>
             <dd>{order.sales_channel?.name ?? order.sales_channel_id}</dd>
-            <dt className="text-muted-foreground">Status</dt>
-            <dd>
-              <span className="inline-flex items-center gap-1.5">
-                <span
-                  className={`inline-block size-2 rounded-full ${STATUS_COLORS[statusName] ?? 'bg-gray-400'}`}
-                />
-                {statusName}
-              </span>
-            </dd>
-            <dt className="text-muted-foreground">Order Health</dt>
-            <dd>
-              <span
-                title={order.color === 'red' ? 'Overdue' : 'On track'}
-                className={`inline-flex items-center gap-1.5 ${order.color === 'red' ? 'text-red-600' : 'text-green-600'}`}
-              >
-                <span
-                  className={`inline-block size-2 rounded-full ${order.color === 'red' ? 'bg-red-500' : 'bg-green-500'}`}
-                />
-                {order.color === 'red' ? 'Overdue' : 'On track'}
-              </span>
-            </dd>
             <dt className="text-muted-foreground">Accepted By</dt>
             <dd>{order.accepted_by?.name ?? '—'}</dd>
             <dt className="text-muted-foreground">Created</dt>

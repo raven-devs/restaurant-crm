@@ -15,7 +15,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { DataTable, type Column } from '@/components/DataTable';
-import { STATUS_COLORS } from '@/lib/status-colors';
+import { STATUS_COLORS, STATUS_TAG_COLORS } from '@/lib/status-colors';
 import { exportToCSV } from '@/lib/csv';
 import { Eye, Download } from 'lucide-react';
 
@@ -122,10 +122,9 @@ export function OrdersListPage() {
       accessor: (row) => {
         const name = row.status?.name ?? '—';
         return (
-          <span className="inline-flex items-center gap-1.5 text-sm">
-            <span
-              className={`inline-block size-2 rounded-full ${STATUS_COLORS[name] ?? 'bg-gray-400'}`}
-            />
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_TAG_COLORS[name] ?? 'bg-gray-100 text-gray-600'}`}
+          >
             {name}
           </span>
         );
