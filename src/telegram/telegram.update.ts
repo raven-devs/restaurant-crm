@@ -11,6 +11,7 @@ import { Context, Telegraf } from 'telegraf';
 import type { SceneContext } from 'telegraf/scenes';
 import { OrdersService } from '../orders/orders.service';
 import { TelegramService } from './telegram.service';
+import { t, tStatus } from '../i18n/i18n';
 
 @Update()
 export class TelegramUpdate {
@@ -22,30 +23,19 @@ export class TelegramUpdate {
 
   @Start()
   async onStart(@Ctx() ctx: Context) {
-    await ctx.reply(
-      'Welcome to Cake CRM Bot!\n\n' +
-        'Commands:\n' +
-        '/orders - List recent orders\n' +
-        '/neworder - Create a new order\n' +
-        '/help - Show help',
-    );
+    await ctx.reply(t('bot.welcome'));
   }
 
   @Help()
   async onHelp(@Ctx() ctx: Context) {
-    await ctx.reply(
-      'Available commands:\n' +
-        '/orders - List recent orders\n' +
-        '/neworder - Start creating a new order\n' +
-        '/help - Show this help message',
-    );
+    await ctx.reply(t('bot.help'));
   }
 
   @Command('orders')
   async onOrders(@Ctx() ctx: Context) {
     const orders = await this.ordersService.findAll({});
     if (!orders.length) {
-      await ctx.reply('No orders found.');
+      await ctx.reply(t('bot.noOrders'));
       return;
     }
 
@@ -54,7 +44,7 @@ export class TelegramUpdate {
       const message = this.telegramService.formatOrderMessage(fullOrder);
 
       if (fullOrder.status?.next_status_id) {
-        const nextStatusName = this.getNextStatusName(fullOrder.status.name);
+        const nextStatusName = tStatus(fullOrder.status.name);
         await ctx.reply(
           message,
           this.telegramService.getStatusTransitionButton(
@@ -81,32 +71,25 @@ export class TelegramUpdate {
     const orderId = callbackQuery.data.replace('transition:', '');
 
     try {
-      const updated = await this.ordersService.transitionStatus(orderId);
+      await this.ordersService.transitionStatus(orderId);
       const fullOrder = await this.ordersService.findOne(orderId);
 
-      await ctx.answerCbQuery('Status updated!');
+      await ctx.answerCbQuery(t('bot.statusUpdated'));
       await ctx.editMessageText(
         this.telegramService.formatOrderMessage(fullOrder),
       );
 
       await this.telegramService.sendNotification(
         this.bot,
-        `Order #${orderId.slice(0, 8)} moved to: ${fullOrder.status?.name}`,
+        t('bot.orderMoved', {
+          id: orderId.slice(0, 8),
+          status: fullOrder.status?.name ?? '',
+        }),
       );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Failed to update status';
+        error instanceof Error ? error.message : t('bot.statusUpdateFailed');
       await ctx.answerCbQuery(message);
     }
-  }
-
-  private getNextStatusName(currentName: string): string {
-    const flow: Record<string, string> = {
-      New: 'Accepted',
-      Accepted: 'In Production',
-      'In Production': 'Ready',
-      Ready: 'Closed',
-    };
-    return flow[currentName] || 'Next Status';
   }
 }

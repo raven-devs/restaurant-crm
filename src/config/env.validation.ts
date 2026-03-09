@@ -24,6 +24,10 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   SENTRY_DSN?: string;
+
+  @IsOptional()
+  @IsString()
+  TELEGRAM_LANG?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

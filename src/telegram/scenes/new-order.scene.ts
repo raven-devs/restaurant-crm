@@ -5,6 +5,7 @@ import { NomenclatureService } from '../../nomenclature/nomenclature.service';
 import { SalesChannelsService } from '../../sales-channels/sales-channels.service';
 import { OrdersService } from '../../orders/orders.service';
 import { TelegramService } from '../telegram.service';
+import { t } from '../../i18n/i18n';
 
 interface WizardState {
   client_id?: string;
@@ -44,7 +45,7 @@ export class NewOrderScene {
     ]);
 
     (ctx.wizard.state as WizardState).items = [];
-    await ctx.reply('Step 1/4: Select a client:', {
+    await ctx.reply(t('wizard.step1'), {
       reply_markup: { inline_keyboard: buttons },
     });
   }
@@ -62,7 +63,7 @@ export class NewOrderScene {
     state.client_id = clientId;
     state.client_name = clientName;
 
-    await ctx.answerCbQuery(`Selected: ${clientName}`);
+    await ctx.answerCbQuery(t('wizard.selected', { name: clientName }));
     await this.showNomenclature(ctx);
     ctx.wizard.next();
   }
@@ -80,14 +81,13 @@ export class NewOrderScene {
         callback_data: `item:${i.id}:${i.name}`,
       },
     ]);
-    buttons.push([{ text: 'Done adding items', callback_data: 'items_done' }]);
+    buttons.push([
+      { text: t('wizard.doneAddingItems'), callback_data: 'items_done' },
+    ]);
 
-    await ctx.reply(
-      'Step 2/4: Select items (tap to add, "Done" when finished):',
-      {
-        reply_markup: { inline_keyboard: buttons },
-      },
-    );
+    await ctx.reply(t('wizard.step2'), {
+      reply_markup: { inline_keyboard: buttons },
+    });
   }
 
   @Action(/^item:(.+):(.+)$/)
@@ -104,14 +104,19 @@ export class NewOrderScene {
     const existing = state.items.find((i) => i.nomenclature_item_id === itemId);
     if (existing) {
       existing.quantity += 1;
-      await ctx.answerCbQuery(`${itemName} x${existing.quantity}`);
+      await ctx.answerCbQuery(
+        t('wizard.itemQuantity', {
+          name: itemName,
+          quantity: existing.quantity,
+        }),
+      );
     } else {
       state.items.push({
         nomenclature_item_id: itemId,
         name: itemName,
         quantity: 1,
       });
-      await ctx.answerCbQuery(`Added: ${itemName}`);
+      await ctx.answerCbQuery(t('wizard.itemAdded', { name: itemName }));
     }
   }
 
@@ -119,7 +124,7 @@ export class NewOrderScene {
   async onItemsDone(@Ctx() ctx: WizardContext) {
     const state = ctx.wizard.state as WizardState;
     if (!state.items.length) {
-      await ctx.answerCbQuery('Please add at least one item');
+      await ctx.answerCbQuery(t('wizard.addAtLeastOne'));
       return;
     }
 
@@ -130,7 +135,7 @@ export class NewOrderScene {
       { text: ch.name, callback_data: `channel:${ch.id}:${ch.name}` },
     ]);
 
-    await ctx.reply('Step 3/4: Select sales channel:', {
+    await ctx.reply(t('wizard.step3'), {
       reply_markup: { inline_keyboard: buttons },
     });
     ctx.wizard.next();
@@ -154,22 +159,22 @@ export class NewOrderScene {
     state.sales_channel_id = channelId;
     state.channel_name = channelName;
 
-    await ctx.answerCbQuery(`Selected: ${channelName}`);
+    await ctx.answerCbQuery(t('wizard.selected', { name: channelName }));
 
     const itemsList = state.items
       .map((i) => `  - ${i.name} x${i.quantity}`)
       .join('\n');
     await ctx.reply(
-      `Step 4/4: Confirm order:\n\n` +
-        `Client: ${state.client_name}\n` +
-        `Channel: ${state.channel_name}\n` +
-        `Items:\n${itemsList}\n\n` +
-        `Create this order?`,
+      `${t('wizard.step4.header')}\n\n` +
+        `${t('wizard.step4.client', { name: state.client_name ?? '' })}\n` +
+        `${t('wizard.step4.channel', { name: state.channel_name ?? '' })}\n` +
+        `${t('wizard.step4.items')}\n${itemsList}\n\n` +
+        t('wizard.step4.confirm'),
       {
         reply_markup: {
           inline_keyboard: [
-            [{ text: 'Confirm', callback_data: 'confirm_order' }],
-            [{ text: 'Cancel', callback_data: 'cancel_order' }],
+            [{ text: t('wizard.confirm'), callback_data: 'confirm_order' }],
+            [{ text: t('wizard.cancel'), callback_data: 'cancel_order' }],
           ],
         },
       },
@@ -196,15 +201,15 @@ export class NewOrderScene {
         })),
       });
 
-      await ctx.answerCbQuery('Order created!');
+      await ctx.answerCbQuery(t('wizard.orderCreated'));
       await ctx.reply(
-        `Order created successfully! ID: ${order.id?.slice(0, 8)}`,
+        t('wizard.orderCreatedSuccess', { id: order.id?.slice(0, 8) ?? '' }),
       );
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : 'Failed to create order';
-      await ctx.answerCbQuery('Error creating order');
-      await ctx.reply(`Error: ${message}`);
+        error instanceof Error ? error.message : t('bot.statusUpdateFailed');
+      await ctx.answerCbQuery(t('wizard.orderCreateError'));
+      await ctx.reply(t('wizard.error', { message }));
     }
 
     await ctx.scene.leave();
@@ -212,8 +217,8 @@ export class NewOrderScene {
 
   @Action('cancel_order')
   async onCancel(@Ctx() ctx: WizardContext) {
-    await ctx.answerCbQuery('Order cancelled');
-    await ctx.reply('Order creation cancelled.');
+    await ctx.answerCbQuery(t('wizard.orderCancelled'));
+    await ctx.reply(t('wizard.orderCancelledMessage'));
     await ctx.scene.leave();
   }
 }

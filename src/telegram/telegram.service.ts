@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
 import type { OrderWithRelations } from '@shared/types/order';
+import { t, tStatus } from '../i18n/i18n';
 
 @Injectable()
 export class TelegramService {
@@ -20,16 +21,19 @@ export class TelegramService {
     );
 
     const date = order.order_date?.split('T')[0] ?? order.order_date;
-    const health = order.color === 'red' ? 'Overdue' : 'On track';
+    const health =
+      order.color === 'red'
+        ? t('order.health.overdue')
+        : t('order.health.onTrack');
 
     return [
-      `Order #${order.id?.slice(0, 8)}`,
-      `Health: ${health}`,
-      `Date: ${date}`,
-      `Client: ${order.client?.name || 'Unknown'}`,
-      `Items: ${order.items?.length ?? 0}`,
-      `Total: ${total.toFixed(2)}`,
-      `Status: ${order.status?.name || 'Unknown'}`,
+      t('order.title', { id: order.id?.slice(0, 8) ?? '' }),
+      t('order.health', { value: health }),
+      t('order.date', { value: date ?? '' }),
+      t('order.client', { value: order.client?.name || 'Unknown' }),
+      t('order.items', { count: order.items?.length ?? 0 }),
+      t('order.total', { value: total.toFixed(2) }),
+      t('order.status', { value: order.status?.name || 'Unknown' }),
     ].join('\n');
   }
 
@@ -39,7 +43,7 @@ export class TelegramService {
         inline_keyboard: [
           [
             {
-              text: `Move to: ${nextStatusName}`,
+              text: t('order.moveTo', { status: nextStatusName }),
               callback_data: `transition:${orderId}`,
             },
           ],

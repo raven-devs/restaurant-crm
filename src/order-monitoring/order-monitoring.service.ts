@@ -3,6 +3,7 @@ import { Interval } from '@nestjs/schedule';
 import { SupabaseService } from '../supabase/supabase.service';
 import { TelegramService } from '../telegram/telegram.service';
 import { ORDER_STATUS_IDS } from '../../shared/constants/order-statuses';
+import { t } from '../i18n/i18n';
 
 interface StatusLimits {
   max_time_unconfirmed: number | null;
@@ -108,17 +109,22 @@ export class OrderMonitoringService {
         if (limits.escalation_action && limits.escalation_action !== 'none') {
           const clientName = (order.client as any)?.name ?? 'Unknown';
           const elapsed = Math.round(elapsedMinutes);
-          const base = `⚠️ Order #${order.id.slice(0, 8)} (${clientName}) overdue in "${limits.name}" — ${elapsed} min elapsed`;
+          const base = t('monitoring.overdue', {
+            id: order.id.slice(0, 8),
+            client: clientName,
+            status: limits.name,
+            elapsed,
+          });
 
           switch (limits.escalation_action) {
             case 'send_telegram_alert':
               alerts.push(base);
               break;
             case 'notify_manager':
-              alerts.push(`👔 [Manager] ${base}`);
+              alerts.push(t('monitoring.manager', { message: base }));
               break;
             case 'auto_escalate':
-              alerts.push(`🔺 [Escalated] ${base}`);
+              alerts.push(t('monitoring.escalated', { message: base }));
               break;
           }
         }
