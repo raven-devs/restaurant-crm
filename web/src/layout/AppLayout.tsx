@@ -2,10 +2,12 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
 import { Sidebar } from '@/layout/Sidebar';
 import { IconButton } from '@/components/IconButton';
-import { Copyright, LogOut } from 'lucide-react';
+import { Copyright, LogOut, Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/theme/ThemeContext';
 
 export function AppLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="flex h-screen">
@@ -23,6 +25,18 @@ export function AppLayout() {
                 </span>
               )}
             </div>
+            <IconButton
+              tooltip={theme === 'light' ? 'Dark mode' : 'Light mode'}
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleTheme}
+            >
+              {theme === 'light' ? (
+                <Moon className="size-4" />
+              ) : (
+                <Sun className="size-4" />
+              )}
+            </IconButton>
             <IconButton
               tooltip="Log out"
               variant="ghost"
