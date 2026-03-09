@@ -155,8 +155,8 @@ SENTRY_DSN=<optional>
 ```
 Framework Preset    Vite
 Root Directory      web
-Build Command       npm run build
-Output Directory    dist
+Build Command       cd web && npm install && npm run build
+Output Directory    web/dist
 ```
 
 4. Add environment variables:
