@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { PageError } from '@/components/PageError';
 import {
   getOrdersReport,
   type ReportFilters,
@@ -34,6 +36,7 @@ function formatMinutes(mins: number | null): string {
 }
 
 export function ReportsPage() {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState<ReportFilters>({});
   const [statusFilter, setStatusFilter] = useState('');
   const [clientFilter, setClientFilter] = useState('');
@@ -65,22 +68,22 @@ export function ReportsPage() {
 
   const columns: Column<ReportRow>[] = [
     {
-      header: 'ID',
+      header: t('orders.id'),
       accessor: (row) => `#${row.id.slice(0, 8)}`,
       csvValue: (row) => row.id.slice(0, 8),
       sortable: false,
     },
     {
-      header: 'Order Date',
+      header: t('orders.orderDate'),
       accessor: (row) => new Date(row.order_date).toLocaleDateString(),
       csvValue: (row) => row.order_date,
       sortValue: (row) => row.order_date,
     },
-    { header: 'Client', accessor: 'client_name' },
-    { header: 'Phone', accessor: 'client_phone' },
-    { header: 'Items', accessor: 'items_count' },
+    { header: t('reports.client'), accessor: 'client_name' },
+    { header: t('reports.phone'), accessor: 'client_phone' },
+    { header: t('reports.items'), accessor: 'items_count' },
     {
-      header: `Total (${currency})`,
+      header: t('orders.total', { currency }),
       accessor: (row) =>
         row.total.toLocaleString('uk-UA', { minimumFractionDigits: 2 }),
       csvValue: (row) => row.total,
@@ -90,9 +93,9 @@ export function ReportsPage() {
           .reduce((sum, r) => sum + r.total, 0)
           .toLocaleString('uk-UA', { minimumFractionDigits: 2 }),
     },
-    { header: 'Channel', accessor: 'sales_channel_name' },
+    { header: t('reports.channel'), accessor: 'sales_channel_name' },
     {
-      header: 'Status',
+      header: t('reports.status'),
       accessor: (row) => (
         <span className="inline-flex items-center gap-1.5 text-sm">
           <span
@@ -105,12 +108,12 @@ export function ReportsPage() {
       sortValue: (row) => row.status_name,
     },
     {
-      header: 'Accepted By',
+      header: t('reports.acceptedBy'),
       accessor: (row) => row.accepted_by_name ?? '—',
       csvValue: (row) => row.accepted_by_name ?? '',
     },
     {
-      header: 'Time Since Creation',
+      header: t('reports.timeSinceCreation'),
       accessor: (row) => formatMinutes(row.time_since_creation),
       csvValue: (row) => formatMinutes(row.time_since_creation),
     },
@@ -118,8 +121,9 @@ export function ReportsPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      {error && <PageError message={error.message} />}
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Reports</h1>
+        <h1 className="text-lg font-semibold">{t('reports.title')}</h1>
         {data && data.length > 0 && (
           <Button
             variant="outline"
@@ -127,14 +131,16 @@ export function ReportsPage() {
             onClick={() => exportToCSV(columns, data, 'report')}
           >
             <Download className="mr-1.5 size-4" />
-            Export
+            {t('common.export')}
           </Button>
         )}
       </div>
 
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">From</span>
+          <span className="text-xs text-muted-foreground">
+            {t('reports.from')}
+          </span>
           <Input
             type="date"
             className="w-40"
@@ -148,7 +154,9 @@ export function ReportsPage() {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted-foreground">To</span>
+          <span className="text-xs text-muted-foreground">
+            {t('reports.to')}
+          </span>
           <Input
             type="date"
             className="w-40"
@@ -167,7 +175,7 @@ export function ReportsPage() {
           onValueChange={(val) => setStatusFilter(val === '__all__' ? '' : val)}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Status">
+            <SelectValue placeholder={t('reports.status')}>
               {statusFilter
                 ? (() => {
                     const s = statuses?.find((s) => s.id === statusFilter);
@@ -185,7 +193,7 @@ export function ReportsPage() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All statuses</SelectItem>
+            <SelectItem value="__all__">{t('reports.allStatuses')}</SelectItem>
             {statuses?.map((s) => (
               <SelectItem key={s.id} value={s.id}>
                 <span className="flex items-center gap-2">
@@ -204,14 +212,14 @@ export function ReportsPage() {
           onValueChange={(val) => setClientFilter(val === '__all__' ? '' : val)}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Client">
+            <SelectValue placeholder={t('reports.client')}>
               {clientFilter
                 ? clientsQuery.data?.find((c) => c.id === clientFilter)?.name
                 : undefined}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All clients</SelectItem>
+            <SelectItem value="__all__">{t('reports.allClients')}</SelectItem>
             {clientsQuery.data?.map((c) => (
               <SelectItem key={c.id} value={c.id}>
                 {c.name}
@@ -227,7 +235,7 @@ export function ReportsPage() {
           }
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="Channel">
+            <SelectValue placeholder={t('reports.channel')}>
               {channelFilter
                 ? channelsQuery.data?.find((ch) => ch.id === channelFilter)
                     ?.name
@@ -235,7 +243,7 @@ export function ReportsPage() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All channels</SelectItem>
+            <SelectItem value="__all__">{t('reports.allChannels')}</SelectItem>
             {channelsQuery.data?.map((ch) => (
               <SelectItem key={ch.id} value={ch.id}>
                 {ch.name}
@@ -245,15 +253,16 @@ export function ReportsPage() {
         </Select>
 
         <Button size="sm" onClick={handleApply}>
-          Apply
+          {t('common.apply')}
         </Button>
       </div>
 
-      {isLoading && <p className="text-muted-foreground">Loading...</p>}
-      {error && <p className="text-destructive">{error.message}</p>}
+      {isLoading && (
+        <p className="text-muted-foreground">{t('common.loading')}</p>
+      )}
       {data && <DataTable columns={columns} data={data} />}
       {!data && !isLoading && !error && (
-        <p className="text-muted-foreground">Apply filters to see the report</p>
+        <p className="text-muted-foreground">{t('reports.applyFilters')}</p>
       )}
     </div>
   );

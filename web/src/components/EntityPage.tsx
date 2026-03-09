@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Pencil, Trash2, Eye, EyeOff, Download } from 'lucide-react';
@@ -33,6 +34,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { DataTable, type Column } from '@/components/DataTable';
+import { PageError } from '@/components/PageError';
 
 export interface FieldDef {
   name: string;
@@ -70,12 +72,15 @@ export function EntityPage<T extends { id: string }>({
   deleteMutation,
   readOnly = false,
   exportFilename,
-  createLabel = 'Create',
+  createLabel,
 }: EntityPageProps<T>) {
+  const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<T | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+
+  const resolvedCreateLabel = createLabel ?? t('common.create');
 
   const openCreate = () => {
     setEditingItem(null);
@@ -101,7 +106,7 @@ export function EntityPage<T extends { id: string }>({
     if (!deleteMutation || !deleteId) return;
     deleteMutation.mutate(deleteId, {
       onSuccess: () => {
-        toast.success('Deleted');
+        toast.success(t('common.deleted'));
         setDeleteId(null);
       },
       onError: (err) => toast.error(err.message),
@@ -110,12 +115,13 @@ export function EntityPage<T extends { id: string }>({
 
   return (
     <div className="flex flex-col gap-4">
+      {query.error && <PageError message={query.error.message} />}
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold">{title}</h1>
         <div className="flex items-center gap-2">
           {searchField && (
             <Input
-              placeholder="Search by name..."
+              placeholder={t('common.search')}
               className="w-48"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -128,19 +134,20 @@ export function EntityPage<T extends { id: string }>({
               onClick={() => exportToCSV(columns, filteredData, exportFilename)}
             >
               <Download className="mr-1.5 size-4" />
-              Export
+              {t('common.export')}
             </Button>
           )}
           {!readOnly && createMutation && (
             <Button onClick={openCreate} size="sm">
-              {createLabel}
+              {resolvedCreateLabel}
             </Button>
           )}
         </div>
       </div>
 
-      {query.isLoading && <p className="text-muted-foreground">Loading...</p>}
-      {query.error && <p className="text-destructive">{query.error.message}</p>}
+      {query.isLoading && (
+        <p className="text-muted-foreground">{t('common.loading')}</p>
+      )}
       {filteredData && (
         <DataTable
           columns={columns}
@@ -152,7 +159,7 @@ export function EntityPage<T extends { id: string }>({
                   <div className="flex gap-1">
                     {updateMutation && (
                       <IconButton
-                        tooltip="Edit"
+                        tooltip={t('common.edit')}
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => openEdit(row)}
@@ -162,7 +169,7 @@ export function EntityPage<T extends { id: string }>({
                     )}
                     {deleteMutation && (
                       <IconButton
-                        tooltip="Delete"
+                        tooltip={t('common.delete')}
                         variant="ghost"
                         size="icon-sm"
                         className="hover:bg-red-100 hover:text-red-600"
@@ -185,7 +192,7 @@ export function EntityPage<T extends { id: string }>({
           editingItem={editingItem}
           createMutation={createMutation}
           updateMutation={updateMutation}
-          createLabel={createLabel}
+          createLabel={resolvedCreateLabel}
         />
       )}
 
@@ -195,15 +202,15 @@ export function EntityPage<T extends { id: string }>({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete record?</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.deleteRecord')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone.
+              {t('common.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -219,7 +226,7 @@ function EntityDialog<T extends { id: string }>({
   editingItem,
   createMutation,
   updateMutation,
-  createLabel = 'Create',
+  createLabel,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -229,6 +236,7 @@ function EntityDialog<T extends { id: string }>({
   updateMutation?: UseMutationResult<T, Error, { id: string; data: unknown }>;
   createLabel?: string;
 }) {
+  const { t } = useTranslation();
   const isEditing = editingItem !== null;
   const defaults: Record<string, string> = {};
   for (const f of fields) {
@@ -241,7 +249,9 @@ function EntityDialog<T extends { id: string }>({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit' : createLabel}</DialogTitle>
+          <DialogTitle>
+            {isEditing ? t('common.edit') : createLabel}
+          </DialogTitle>
         </DialogHeader>
         <EntityForm
           fields={fields}
@@ -254,7 +264,7 @@ function EntityDialog<T extends { id: string }>({
                 { id: editingItem.id, data },
                 {
                   onSuccess: () => {
-                    toast.success('Updated');
+                    toast.success(t('common.updated'));
                     onOpenChange(false);
                   },
                   onError: (err) => toast.error(err.message),
@@ -263,7 +273,7 @@ function EntityDialog<T extends { id: string }>({
             } else if (createMutation) {
               createMutation.mutate(data, {
                 onSuccess: () => {
-                  toast.success('Created');
+                  toast.success(t('common.created'));
                   onOpenChange(false);
                 },
                 onError: (err) => toast.error(err.message),
@@ -296,6 +306,7 @@ function EntityForm({
   onCancel: () => void;
   isPending: boolean;
 }) {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -366,7 +377,9 @@ function EntityForm({
                       aria-invalid={!!errors[f.name]}
                     >
                       <SelectValue
-                        placeholder={`Select ${f.label.toLowerCase()}`}
+                        placeholder={t('common.select', {
+                          label: f.label.toLowerCase(),
+                        })}
                       >
                         {selected?.label}
                       </SelectValue>
@@ -413,16 +426,18 @@ function EntityForm({
             />
           )}
           {errors[f.name] && (
-            <p className="text-xs text-destructive">{f.label} is required</p>
+            <p className="text-xs text-destructive">
+              {t('common.required', { label: f.label })}
+            </p>
           )}
         </div>
       ))}
       <DialogFooter>
         <Button type="button" variant="outline" size="sm" onClick={onCancel}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button type="submit" disabled={isPending} size="sm">
-          {isPending ? 'Saving...' : 'Save'}
+          {isPending ? t('common.saving') : t('common.save')}
         </Button>
       </DialogFooter>
     </form>

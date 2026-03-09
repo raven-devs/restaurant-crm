@@ -11,7 +11,7 @@ let cachedLocale: Locale | null = null;
 function getLocale(): Locale {
   if (!cachedLocale) {
     const env = process.env.TELEGRAM_LANG;
-    cachedLocale = env === 'en' ? 'en' : 'uk';
+    cachedLocale = env === 'uk' ? 'uk' : 'en';
   }
   return cachedLocale;
 }

@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOrders } from '@/hooks/useOrders';
 import { useOrderStatuses } from '@/hooks/useReferences';
+import { PageError } from '@/components/PageError';
 import { useSettings } from '@/hooks/useSettings';
 import type { OrderFilters, Order } from '@/api/orders';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,7 @@ import { exportToCSV } from '@/lib/csv';
 import { Eye, Download } from 'lucide-react';
 
 export function OrdersListPage() {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState<OrderFilters>({});
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [colorFilter, setColorFilter] = useState<string>('');
@@ -49,44 +52,45 @@ export function OrdersListPage() {
 
   const columns: Column<Order>[] = [
     {
-      header: 'ID',
+      header: t('orders.id'),
       accessor: (row) => `#${row.id.slice(0, 8)}`,
       csvValue: (row) => row.id.slice(0, 8),
       sortable: false,
     },
     {
-      header: 'Order Health',
+      header: t('orders.orderHealth'),
       accessor: (row) => (
         <span className="inline-flex items-center gap-1.5 text-sm">
           <span
             className={`inline-block size-3 rounded-full ${row.color === 'red' ? 'bg-red-500' : 'bg-green-500'}`}
           />
-          {row.color === 'red' ? 'Overdue' : 'On track'}
+          {row.color === 'red' ? t('orders.overdue') : t('orders.onTrack')}
         </span>
       ),
-      csvValue: (row) => (row.color === 'red' ? 'Overdue' : 'On track'),
+      csvValue: (row) =>
+        row.color === 'red' ? t('orders.overdue') : t('orders.onTrack'),
       sortable: false,
     },
     {
-      header: 'Order Date',
+      header: t('orders.orderDate'),
       accessor: (row) => new Date(row.order_date).toLocaleDateString(),
       csvValue: (row) => row.order_date,
       sortValue: (row) => row.order_date,
     },
     {
-      header: 'Client',
+      header: t('orders.client'),
       accessor: (row) => row.client?.name ?? row.client_id,
       csvValue: (row) => row.client?.name ?? '',
       sortValue: (row) => row.client?.name ?? '',
     },
     {
-      header: 'Items',
+      header: t('orders.items'),
       accessor: (row) => row.items?.length ?? 0,
       csvValue: (row) => row.items?.length ?? 0,
       sortValue: (row) => row.items?.length ?? 0,
     },
     {
-      header: `Total (${currency})`,
+      header: t('orders.total', { currency }),
       accessor: (row) => {
         const total = (row.items ?? []).reduce(
           (sum, i) => sum + (i.quantity ?? 0) * (i.price_at_order ?? 0),
@@ -118,7 +122,7 @@ export function OrdersListPage() {
           .toLocaleString('uk-UA', { minimumFractionDigits: 2 }),
     },
     {
-      header: 'Status',
+      header: t('orders.status'),
       accessor: (row) => {
         const name = row.status?.name ?? '—';
         return (
@@ -136,11 +140,12 @@ export function OrdersListPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      {error && <PageError message={error.message} />}
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Orders</h1>
+        <h1 className="text-lg font-semibold">{t('orders.title')}</h1>
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Search by client..."
+            placeholder={t('orders.searchByClient')}
             className="w-48"
             value={clientSearch}
             onChange={(e) => setClientSearch(e.target.value)}
@@ -152,11 +157,11 @@ export function OrdersListPage() {
               onClick={() => exportToCSV(columns, filteredOrders, 'orders')}
             >
               <Download className="mr-1.5 size-4" />
-              Export
+              {t('common.export')}
             </Button>
           )}
           <Button size="sm" asChild>
-            <Link to="/orders/new">New Order</Link>
+            <Link to="/orders/new">{t('orders.newOrder')}</Link>
           </Button>
         </div>
       </div>
@@ -171,30 +176,30 @@ export function OrdersListPage() {
               {colorFilter === 'green' ? (
                 <span className="flex items-center gap-2">
                   <span className="inline-block size-2 rounded-full bg-green-500" />
-                  On track
+                  {t('orders.onTrack')}
                 </span>
               ) : colorFilter === 'red' ? (
                 <span className="flex items-center gap-2">
                   <span className="inline-block size-2 rounded-full bg-red-500" />
-                  Overdue
+                  {t('orders.overdue')}
                 </span>
               ) : (
-                'All orders'
+                t('orders.allOrders')
               )}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All orders</SelectItem>
+            <SelectItem value="__all__">{t('orders.allOrders')}</SelectItem>
             <SelectItem value="green">
               <span className="flex items-center gap-2">
                 <span className="inline-block size-2 rounded-full bg-green-500" />
-                On track
+                {t('orders.onTrack')}
               </span>
             </SelectItem>
             <SelectItem value="red">
               <span className="flex items-center gap-2">
                 <span className="inline-block size-2 rounded-full bg-red-500" />
-                Overdue
+                {t('orders.overdue')}
               </span>
             </SelectItem>
           </SelectContent>
@@ -205,7 +210,7 @@ export function OrdersListPage() {
           onValueChange={(val) => setStatusFilter(val === '__all__' ? '' : val)}
         >
           <SelectTrigger className="w-44">
-            <SelectValue placeholder="All statuses">
+            <SelectValue placeholder={t('orders.allStatuses')}>
               {statusFilter
                 ? (() => {
                     const s = statuses?.find((s) => s.id === statusFilter);
@@ -223,7 +228,7 @@ export function OrdersListPage() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All statuses</SelectItem>
+            <SelectItem value="__all__">{t('orders.allStatuses')}</SelectItem>
             {statuses?.map((s) => (
               <SelectItem key={s.id} value={s.id}>
                 <span className="flex items-center gap-2">
@@ -239,7 +244,7 @@ export function OrdersListPage() {
 
         <Input
           type="date"
-          placeholder="From"
+          placeholder={t('reports.from')}
           className="w-40"
           value={filters.date_from ?? ''}
           onChange={(e) =>
@@ -251,7 +256,7 @@ export function OrdersListPage() {
         />
         <Input
           type="date"
-          placeholder="To"
+          placeholder={t('reports.to')}
           className="w-40"
           value={filters.date_to ?? ''}
           onChange={(e) =>
@@ -260,14 +265,20 @@ export function OrdersListPage() {
         />
       </div>
 
-      {isLoading && <p className="text-muted-foreground">Loading...</p>}
-      {error && <p className="text-destructive">{error.message}</p>}
+      {isLoading && (
+        <p className="text-muted-foreground">{t('common.loading')}</p>
+      )}
       {data && (
         <DataTable
           columns={columns}
           data={filteredOrders}
           actions={(row) => (
-            <IconButton tooltip="View" variant="ghost" size="icon-sm" asChild>
+            <IconButton
+              tooltip={t('orders.view')}
+              variant="ghost"
+              size="icon-sm"
+              asChild
+            >
               <Link to={`/orders/${row.id}`}>
                 <Eye />
               </Link>

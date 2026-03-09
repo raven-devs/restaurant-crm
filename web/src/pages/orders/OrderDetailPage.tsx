@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { PageError } from '@/components/PageError';
 import { useAuth } from '@/auth/AuthContext';
 import {
   useOrder,
@@ -36,6 +38,7 @@ import { ArrowLeft, ArrowRight, Trash2 } from 'lucide-react';
 const TERMINAL_STATUS = 'Closed';
 
 export function OrderDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -52,15 +55,22 @@ export function OrderDetailPage() {
     advanceStatus.mutate(
       { orderId: order.id, employeeId: user?.employee_id ?? undefined },
       {
-        onSuccess: () => toast.success('Status changed'),
+        onSuccess: () => toast.success(t('orders.statusChanged')),
         onError: (err) => toast.error(err.message),
       },
     );
   };
 
-  if (isLoading) return <p className="text-muted-foreground">Loading...</p>;
-  if (error) return <p className="text-destructive">{error.message}</p>;
-  if (!order) return <p className="text-muted-foreground">Order not found</p>;
+  if (isLoading)
+    return <p className="text-muted-foreground">{t('common.loading')}</p>;
+  if (error)
+    return (
+      <div className="flex flex-col gap-4">
+        <PageError message={error.message} />
+      </div>
+    );
+  if (!order)
+    return <p className="text-muted-foreground">{t('common.noData')}</p>;
 
   const statusName = order.status?.name ?? '—';
   const nextStatusId = order.status?.next_status_id;
@@ -72,12 +82,17 @@ export function OrderDetailPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <IconButton tooltip="Back" variant="ghost" size="icon-sm" asChild>
+        <IconButton
+          tooltip={t('orders.back')}
+          variant="ghost"
+          size="icon-sm"
+          asChild
+        >
           <Link to="/orders">
             <ArrowLeft />
           </Link>
         </IconButton>
-        <h1 className="text-lg font-semibold">Order Details</h1>
+        <h1 className="text-lg font-semibold">{t('orders.orderDetails')}</h1>
         <span
           className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${STATUS_TAG_COLORS[statusName] ?? 'bg-gray-100 text-gray-600'}`}
         >
@@ -89,27 +104,29 @@ export function OrderDetailPage() {
           <span
             className={`inline-block size-3 rounded-full ${order.color === 'red' ? 'bg-red-500' : 'bg-green-500'}`}
           />
-          {order.color === 'red' ? 'Overdue' : 'On track'}
+          {order.color === 'red' ? t('orders.overdue') : t('orders.onTrack')}
         </span>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Info</CardTitle>
+          <CardTitle>{t('orders.info')}</CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            <dt className="text-muted-foreground">Order ID</dt>
+            <dt className="text-muted-foreground">{t('orders.orderId')}</dt>
             <dd>#{order.id.slice(0, 8)}</dd>
-            <dt className="text-muted-foreground">Order Date</dt>
+            <dt className="text-muted-foreground">{t('orders.orderDate')}</dt>
             <dd>{new Date(order.order_date).toLocaleDateString()}</dd>
-            <dt className="text-muted-foreground">Client</dt>
+            <dt className="text-muted-foreground">{t('orders.client')}</dt>
             <dd>{order.client?.name ?? order.client_id}</dd>
-            <dt className="text-muted-foreground">Sales Channel</dt>
+            <dt className="text-muted-foreground">
+              {t('orders.salesChannel')}
+            </dt>
             <dd>{order.sales_channel?.name ?? order.sales_channel_id}</dd>
-            <dt className="text-muted-foreground">Accepted By</dt>
+            <dt className="text-muted-foreground">{t('orders.acceptedBy')}</dt>
             <dd>{order.accepted_by?.name ?? '—'}</dd>
-            <dt className="text-muted-foreground">Created</dt>
+            <dt className="text-muted-foreground">{t('orders.created')}</dt>
             <dd>{new Date(order.created_at).toLocaleString()}</dd>
           </dl>
         </CardContent>
@@ -117,16 +134,20 @@ export function OrderDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Items</CardTitle>
+          <CardTitle>{t('orders.items')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead className="w-24">Quantity</TableHead>
-                <TableHead className="w-32 text-right">Price</TableHead>
-                <TableHead className="w-32 text-right">Subtotal</TableHead>
+                <TableHead>{t('orders.product')}</TableHead>
+                <TableHead className="w-24">{t('orders.quantity')}</TableHead>
+                <TableHead className="w-32 text-right">
+                  {t('orders.price')}
+                </TableHead>
+                <TableHead className="w-32 text-right">
+                  {t('orders.subtotal')}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -157,7 +178,7 @@ export function OrderDetailPage() {
                   })}
                   <TableRow className="font-semibold">
                     <TableCell colSpan={3} className="text-right">
-                      Total ({currency})
+                      {t('orders.total', { currency })}
                     </TableCell>
                     <TableCell className="text-right">
                       {order.items
@@ -176,7 +197,7 @@ export function OrderDetailPage() {
                     colSpan={4}
                     className="text-center text-muted-foreground"
                   >
-                    No items
+                    {t('orders.noItems')}
                   </TableCell>
                 </TableRow>
               )}
@@ -192,7 +213,7 @@ export function OrderDetailPage() {
           onClick={() => setShowDeleteDialog(true)}
         >
           <Trash2 className="mr-1 size-4" />
-          Delete
+          {t('common.delete')}
         </Button>
         {canAdvance && (
           <Button
@@ -206,8 +227,10 @@ export function OrderDetailPage() {
           >
             <ArrowRight className="mr-1 size-4" />
             {advanceStatus.isPending
-              ? 'Moving...'
-              : `Move to: ${nextStatusName ?? 'Next Status'}`}
+              ? t('orders.moving')
+              : t('orders.moveTo', {
+                  status: nextStatusName ?? t('orders.nextStatus'),
+                })}
           </Button>
         )}
       </div>
@@ -215,25 +238,25 @@ export function OrderDetailPage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete order?</AlertDialogTitle>
+            <AlertDialogTitle>{t('orders.deleteOrder')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone.
+              {t('orders.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 deleteOrder.mutate(order.id, {
                   onSuccess: () => {
-                    toast.success('Order deleted');
+                    toast.success(t('orders.orderDeleted'));
                     navigate('/orders');
                   },
                   onError: (err) => toast.error(err.message),
                 });
               }}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

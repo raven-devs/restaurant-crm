@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '@/auth/LoginPage';
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
 import { AppLayout } from '@/layout/AppLayout';
+import { NotFoundPage } from '@/pages/NotFoundPage';
 
 const OrdersListPage = lazy(() =>
   import('@/pages/orders/OrdersListPage').then((m) => ({
@@ -161,6 +162,7 @@ export default function App() {
               </Suspense>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
