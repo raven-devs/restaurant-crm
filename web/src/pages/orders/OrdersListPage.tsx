@@ -160,8 +160,8 @@ export function OrdersListPage() {
               {t('common.export')}
             </Button>
           )}
-          <Button size="sm" asChild>
-            <Link to="/orders/new">{t('orders.newOrder')}</Link>
+          <Button render={<Link to="/orders/new" />} size="sm">
+            {t('orders.newOrder')}
           </Button>
         </div>
       </div>
@@ -169,7 +169,9 @@ export function OrdersListPage() {
       <div className="flex flex-wrap gap-2">
         <Select
           value={colorFilter || '__all__'}
-          onValueChange={(val) => setColorFilter(val === '__all__' ? '' : val)}
+          onValueChange={(val) =>
+            setColorFilter(val === '__all__' || val == null ? '' : val)
+          }
         >
           <SelectTrigger className="w-36">
             <SelectValue>
@@ -207,7 +209,9 @@ export function OrdersListPage() {
 
         <Select
           value={statusFilter}
-          onValueChange={(val) => setStatusFilter(val === '__all__' ? '' : val)}
+          onValueChange={(val) =>
+            setStatusFilter(val === '__all__' || val == null ? '' : val)
+          }
         >
           <SelectTrigger className="w-44">
             <SelectValue placeholder={t('orders.allStatuses')}>
@@ -277,11 +281,9 @@ export function OrdersListPage() {
               tooltip={t('orders.view')}
               variant="ghost"
               size="icon-sm"
-              asChild
+              render={<Link to={`/orders/${row.id}`} />}
             >
-              <Link to={`/orders/${row.id}`}>
-                <Eye />
-              </Link>
+              <Eye />
             </IconButton>
           )}
         />

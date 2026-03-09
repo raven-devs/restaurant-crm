@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import {
   ShoppingCart,
@@ -13,22 +14,24 @@ import {
 import { Separator } from '@/components/ui/separator';
 
 const navItems = [
-  { to: '/orders', label: 'Orders', icon: ShoppingCart },
-  { to: '/clients', label: 'Clients', icon: Users },
-  { to: '/nomenclature', label: 'Nomenclature', icon: Cake },
-  { to: '/employees', label: 'Employees', icon: UserCog },
-  { to: '/org-units', label: 'Org Structure', icon: Building2 },
-  { to: '/sales-channels', label: 'Sales Channels', icon: Megaphone },
-  { to: '/reports', label: 'Reports', icon: BarChart3 },
+  { to: '/orders', labelKey: 'nav.orders', icon: ShoppingCart },
+  { to: '/clients', labelKey: 'nav.clients', icon: Users },
+  { to: '/nomenclature', labelKey: 'nav.nomenclature', icon: Cake },
+  { to: '/employees', labelKey: 'nav.employees', icon: UserCog },
+  { to: '/org-units', labelKey: 'nav.orgStructure', icon: Building2 },
+  { to: '/sales-channels', labelKey: 'nav.salesChannels', icon: Megaphone },
+  { to: '/reports', labelKey: 'nav.reports', icon: BarChart3 },
 ];
 
 export function Sidebar() {
+  const { t } = useTranslation();
+
   return (
     <aside className="flex h-full w-56 flex-col border-r bg-sidebar">
       <div className="flex h-12 items-center gap-2 border-b px-3">
         <img src="/logo.jpeg" alt="Cake CRM" className="h-9 w-auto rounded" />
         <span className="text-sm font-semibold text-sidebar-foreground">
-          Cake CRM
+          {t('nav.appName')}
         </span>
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-2">
@@ -46,7 +49,7 @@ export function Sidebar() {
             }
           >
             <item.icon className="size-4" />
-            {item.label}
+            {t(item.labelKey)}
           </NavLink>
         ))}
         <Separator className="my-1" />
@@ -62,7 +65,7 @@ export function Sidebar() {
           }
         >
           <Settings className="size-4" />
-          Settings
+          {t('nav.settings')}
         </NavLink>
       </nav>
     </aside>

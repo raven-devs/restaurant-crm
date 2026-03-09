@@ -89,7 +89,10 @@ describe('AuthService', () => {
   describe('getUser', () => {
     it('returns user for valid token', async () => {
       const user = { id: 'u1', email: 'user@test.com' };
-      mockClient.auth.getUser.mockResolvedValue({ data: { user }, error: null });
+      mockClient.auth.getUser.mockResolvedValue({
+        data: { user },
+        error: null,
+      });
 
       const result = await service.getUser('valid-token');
       expect(result).toEqual(user);

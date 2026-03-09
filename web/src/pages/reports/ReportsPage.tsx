@@ -172,7 +172,9 @@ export function ReportsPage() {
 
         <Select
           value={statusFilter}
-          onValueChange={(val) => setStatusFilter(val === '__all__' ? '' : val)}
+          onValueChange={(val) =>
+            setStatusFilter(val === '__all__' || val == null ? '' : val)
+          }
         >
           <SelectTrigger className="w-44">
             <SelectValue placeholder={t('reports.status')}>
@@ -209,7 +211,9 @@ export function ReportsPage() {
 
         <Select
           value={clientFilter}
-          onValueChange={(val) => setClientFilter(val === '__all__' ? '' : val)}
+          onValueChange={(val) =>
+            setClientFilter(val === '__all__' || val == null ? '' : val)
+          }
         >
           <SelectTrigger className="w-44">
             <SelectValue placeholder={t('reports.client')}>
@@ -231,7 +235,7 @@ export function ReportsPage() {
         <Select
           value={channelFilter}
           onValueChange={(val) =>
-            setChannelFilter(val === '__all__' ? '' : val)
+            setChannelFilter(val === '__all__' || val == null ? '' : val)
           }
         >
           <SelectTrigger className="w-44">

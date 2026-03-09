@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf } from 'telegraf';
 import type { OrderWithRelations } from '@shared/types/order';
-import { t, tStatus } from '../i18n/i18n';
+import { t } from '../i18n/i18n';
 
 @Injectable()
 export class TelegramService {

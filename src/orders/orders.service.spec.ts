@@ -77,9 +77,7 @@ describe('OrdersService', () => {
       );
 
       const historyChain = chainable();
-      historyChain.insert.mockReturnValue(
-        Promise.resolve({ error: null }),
-      );
+      historyChain.insert.mockReturnValue(Promise.resolve({ error: null }));
 
       mockClient.from.mockImplementation((table: string) => {
         const map: Record<string, any> = {
@@ -102,9 +100,7 @@ describe('OrdersService', () => {
 
     it('throws NotFoundException when nomenclature item missing', async () => {
       const nomChain = chainable();
-      nomChain.in.mockReturnValue(
-        Promise.resolve({ data: [], error: null }),
-      );
+      nomChain.in.mockReturnValue(Promise.resolve({ data: [], error: null }));
 
       mockClient.from.mockReturnValue(nomChain);
 
@@ -133,10 +129,10 @@ describe('OrdersService', () => {
       chain.eq.mockReturnValue(chain);
       chain.gte.mockReturnValue(chain);
       chain.lte.mockReturnValue(chain);
-      chain.then = (resolve: any) => {
+      chain.then = jest.fn((resolve: any) => {
         resolve({ data: [], error: null });
         return Promise.resolve({ data: [], error: null });
-      };
+      });
 
       mockClient.from.mockReturnValue(chain);
 

@@ -1,4 +1,8 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { CreateSalesChannelDto } from './dto/create-sales-channel.dto';
 import { UpdateSalesChannelDto } from './dto/update-sales-channel.dto';
@@ -39,7 +43,9 @@ export class SalesChannelsService {
       .single();
     if (error) {
       if (error.code === '23505')
-        throw new ConflictException(`Sales channel "${dto.name}" already exists`);
+        throw new ConflictException(
+          `Sales channel "${dto.name}" already exists`,
+        );
       throw error;
     }
     return data;
@@ -55,7 +61,9 @@ export class SalesChannelsService {
       .single();
     if (error) {
       if (error.code === '23505')
-        throw new ConflictException(`Sales channel "${dto.name}" already exists`);
+        throw new ConflictException(
+          `Sales channel "${dto.name}" already exists`,
+        );
       throw new NotFoundException(`Record ${id} not found`);
     }
     return data;

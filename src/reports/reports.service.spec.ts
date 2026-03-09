@@ -49,10 +49,10 @@ describe('ReportsService', () => {
 
     it('returns mapped report rows', async () => {
       const chain = chainable();
-      chain.then = (resolve: any) => {
+      chain.then = jest.fn((resolve: any) => {
         resolve({ data: [sampleOrder], error: null });
         return Promise.resolve({ data: [sampleOrder], error: null });
-      };
+      });
       chain.order.mockReturnValue(chain);
       mockClient.from.mockReturnValue(chain);
 
@@ -74,10 +74,10 @@ describe('ReportsService', () => {
 
     it('applies date filters', async () => {
       const chain = chainable();
-      chain.then = (resolve: any) => {
+      chain.then = jest.fn((resolve: any) => {
         resolve({ data: [], error: null });
         return Promise.resolve({ data: [], error: null });
-      };
+      });
       chain.order.mockReturnValue(chain);
       chain.gte.mockReturnValue(chain);
       chain.lte.mockReturnValue(chain);
@@ -94,10 +94,10 @@ describe('ReportsService', () => {
 
     it('applies status, client, and channel filters', async () => {
       const chain = chainable();
-      chain.then = (resolve: any) => {
+      chain.then = jest.fn((resolve: any) => {
         resolve({ data: [], error: null });
         return Promise.resolve({ data: [], error: null });
-      };
+      });
       chain.order.mockReturnValue(chain);
       chain.eq.mockReturnValue(chain);
       mockClient.from.mockReturnValue(chain);
@@ -126,10 +126,10 @@ describe('ReportsService', () => {
       };
 
       const chain = chainable();
-      chain.then = (resolve: any) => {
+      chain.then = jest.fn((resolve: any) => {
         resolve({ data: [orderWithNulls], error: null });
         return Promise.resolve({ data: [orderWithNulls], error: null });
-      };
+      });
       chain.order.mockReturnValue(chain);
       mockClient.from.mockReturnValue(chain);
 
@@ -146,10 +146,10 @@ describe('ReportsService', () => {
 
     it('throws when supabase returns error', async () => {
       const chain = chainable();
-      chain.then = (resolve: any) => {
+      chain.then = jest.fn((resolve: any) => {
         resolve({ data: null, error: new Error('db error') });
         return Promise.resolve({ data: null, error: new Error('db error') });
-      };
+      });
       chain.order.mockReturnValue(chain);
       mockClient.from.mockReturnValue(chain);
 

@@ -27,8 +27,9 @@ import {
 function useCrudHooks<T>(
   queryKey: string,
   fetchFn: () => Promise<T[]>,
-  createFn?: (data: unknown) => Promise<T>,
-  updateFn?: (id: string, data: unknown) => Promise<T>,
+
+  createFn?: (data: any) => Promise<T>,
+  updateFn?: (id: string, data: any) => Promise<T>,
   deleteFn?: (id: string) => Promise<unknown>,
 ) {
   const queryClient = useQueryClient();

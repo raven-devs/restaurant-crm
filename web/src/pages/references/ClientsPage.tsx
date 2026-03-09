@@ -1,30 +1,32 @@
+import { useTranslation } from 'react-i18next';
 import { useClients } from '@/hooks/useReferences';
 import { EntityPage, type FieldDef } from '@/components/EntityPage';
 import type { Column } from '@/components/DataTable';
 import type { Client } from '@/api/references';
 
-const columns: Column<Client>[] = [
-  { header: 'Name', accessor: 'name' },
-  { header: 'Phone', accessor: 'phone' },
-];
-
-const fields: FieldDef[] = [
-  { name: 'name', label: 'Name' },
-  { name: 'phone', label: 'Phone', type: 'tel' },
-];
-
 export function ClientsPage() {
+  const { t } = useTranslation();
   const { query, create, update, remove } = useClients();
+
+  const columns: Column<Client>[] = [
+    { header: t('common.name'), accessor: 'name' },
+    { header: t('common.phone'), accessor: 'phone' },
+  ];
+
+  const fields: FieldDef[] = [
+    { name: 'name', label: t('common.name') },
+    { name: 'phone', label: t('common.phone'), type: 'tel' },
+  ];
 
   return (
     <EntityPage
-      title="Clients"
+      title={t('references.clients')}
       query={query}
       columns={columns}
       fields={fields}
       searchField="name"
       exportFilename="clients"
-      createLabel="New Client"
+      createLabel={t('references.newClient')}
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

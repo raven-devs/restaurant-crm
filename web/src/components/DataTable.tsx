@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowUp,
   ArrowDown,
@@ -42,6 +43,7 @@ export function DataTable<T extends { id: string }>({
   actions,
   pageSize = 10,
 }: DataTableProps<T>) {
+  const { t } = useTranslation();
   const [sortCol, setSortCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>('asc');
   const [page, setPage] = useState(0);
@@ -124,7 +126,9 @@ export function DataTable<T extends { id: string }>({
                 </TableHead>
               );
             })}
-            {actions && <TableHead className="w-24">Actions</TableHead>}
+            {actions && (
+              <TableHead className="w-24">{t('common.actions')}</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -134,7 +138,7 @@ export function DataTable<T extends { id: string }>({
                 colSpan={columns.length + (actions ? 1 : 0)}
                 className="text-center text-muted-foreground"
               >
-                No data
+                {t('common.noData')}
               </TableCell>
             </TableRow>
           ) : (
@@ -171,11 +175,13 @@ export function DataTable<T extends { id: string }>({
           {totalPages > 1 ? (
             <>
               {safeePage * pageSize + 1}–
-              {Math.min((safeePage + 1) * pageSize, sortedData.length)} of{' '}
-              {sortedData.length}
+              {Math.min((safeePage + 1) * pageSize, sortedData.length)}{' '}
+              {t('common.of')} {sortedData.length}
             </>
           ) : (
-            <>{sortedData.length} total</>
+            <>
+              {sortedData.length} {t('common.total')}
+            </>
           )}
         </span>
         {totalPages > 1 && (

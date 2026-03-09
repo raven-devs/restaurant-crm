@@ -86,11 +86,9 @@ export function OrderDetailPage() {
           tooltip={t('orders.back')}
           variant="ghost"
           size="icon-sm"
-          asChild
+          render={<Link to="/orders" />}
         >
-          <Link to="/orders">
-            <ArrowLeft />
-          </Link>
+          <ArrowLeft />
         </IconButton>
         <h1 className="text-lg font-semibold">{t('orders.orderDetails')}</h1>
         <span

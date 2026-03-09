@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNomenclature } from '@/hooks/useReferences';
 import { useSettings } from '@/hooks/useSettings';
 import { EntityPage, type FieldDef } from '@/components/EntityPage';
@@ -5,14 +6,15 @@ import type { Column } from '@/components/DataTable';
 import type { NomenclatureItem } from '@/api/references';
 
 export function NomenclaturePage() {
+  const { t } = useTranslation();
   const { query, create, update, remove } = useNomenclature();
   const { settings } = useSettings();
   const currency = settings?.currency ?? 'UAH';
 
   const columns: Column<NomenclatureItem>[] = [
-    { header: 'Name', accessor: 'name' },
+    { header: t('common.name'), accessor: 'name' },
     {
-      header: `Price (${currency})`,
+      header: t('references.price', { currency }),
       accessor: (row) => row.price.toFixed(2),
       csvValue: (row) => row.price,
       sortValue: (row) => row.price,
@@ -20,19 +22,23 @@ export function NomenclaturePage() {
   ];
 
   const fields: FieldDef[] = [
-    { name: 'name', label: 'Name' },
-    { name: 'price', label: `Price (${currency})`, type: 'number' },
+    { name: 'name', label: t('common.name') },
+    {
+      name: 'price',
+      label: t('references.price', { currency }),
+      type: 'number',
+    },
   ];
 
   return (
     <EntityPage
-      title="Nomenclature"
+      title={t('references.nomenclature')}
       query={query}
       columns={columns}
       fields={fields}
       searchField="name"
       exportFilename="nomenclature"
-      createLabel="New Item"
+      createLabel={t('references.newItem')}
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}

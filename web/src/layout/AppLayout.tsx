@@ -1,13 +1,19 @@
 import { Outlet } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/auth/AuthContext';
 import { Sidebar } from '@/layout/Sidebar';
 import { IconButton } from '@/components/IconButton';
-import { Copyright, LogOut, Moon, Sun } from 'lucide-react';
+import { Copyright, Globe, LogOut, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/theme/ThemeContext';
 
 export function AppLayout() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    i18n.changeLanguage(i18n.language === 'en' ? 'uk' : 'en');
+  };
 
   return (
     <div className="flex h-screen">
@@ -26,7 +32,17 @@ export function AppLayout() {
               )}
             </div>
             <IconButton
-              tooltip={theme === 'light' ? 'Dark mode' : 'Light mode'}
+              tooltip={t('layout.language')}
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleLanguage}
+            >
+              <Globe className="size-4" />
+            </IconButton>
+            <IconButton
+              tooltip={
+                theme === 'light' ? t('layout.darkMode') : t('layout.lightMode')
+              }
               variant="ghost"
               size="icon-sm"
               onClick={toggleTheme}
@@ -38,7 +54,7 @@ export function AppLayout() {
               )}
             </IconButton>
             <IconButton
-              tooltip="Log out"
+              tooltip={t('layout.logout')}
               variant="ghost"
               size="icon-sm"
               onClick={logout}
@@ -53,10 +69,10 @@ export function AppLayout() {
         <footer className="flex h-10 items-center justify-between border-t px-4 text-xs text-muted-foreground">
           <div className="flex gap-4">
             <a href="/privacy" className="hover:text-foreground">
-              Privacy Policy
+              {t('layout.privacyPolicy')}
             </a>
             <a href="/terms" className="hover:text-foreground">
-              Terms of Use
+              {t('layout.termsOfUse')}
             </a>
           </div>
           <div className="flex items-center gap-1">

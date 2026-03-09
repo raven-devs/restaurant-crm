@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useCreateOrder } from '@/hooks/useOrders';
 import {
@@ -34,6 +35,7 @@ interface OrderFormValues {
 }
 
 export function CreateOrderPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const createOrder = useCreateOrder();
   const { query: clientsQuery } = useClients();
@@ -76,14 +78,14 @@ export function CreateOrderPage() {
 
   const onSubmit = () => {
     if (!clientId || !channelId || items.length === 0) {
-      toast.error('Please fill in all fields and add at least one item');
+      toast.error(t('orders.fillAllFields'));
       return;
     }
     createOrder.mutate(
       { client_id: clientId, sales_channel_id: channelId, items },
       {
         onSuccess: (order) => {
-          toast.success('Order created');
+          toast.success(t('orders.orderCreated'));
           navigate(`/orders/${order.id}`);
         },
         onError: (err) => toast.error(err.message),
@@ -101,13 +103,16 @@ export function CreateOrderPage() {
 
   return (
     <div className="mx-auto max-w-lg">
-      <h1 className="mb-4 text-lg font-semibold">New Order</h1>
+      <h1 className="mb-4 text-lg font-semibold">{t('orders.newOrder')}</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <Label>Client</Label>
-          <Select value={clientId} onValueChange={setClientId}>
+          <Label>{t('orders.client')}</Label>
+          <Select
+            value={clientId}
+            onValueChange={(val) => setClientId(val ?? '')}
+          >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select client">
+              <SelectValue placeholder={t('orders.selectClient')}>
                 {selectedClient
                   ? `${selectedClient.name} (${selectedClient.phone})`
                   : undefined}
@@ -124,10 +129,13 @@ export function CreateOrderPage() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label>Sales Channel</Label>
-          <Select value={channelId} onValueChange={setChannelId}>
+          <Label>{t('orders.salesChannel')}</Label>
+          <Select
+            value={channelId}
+            onValueChange={(val) => setChannelId(val ?? '')}
+          >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select channel">
+              <SelectValue placeholder={t('orders.selectChannel')}>
                 {selectedChannel?.name}
               </SelectValue>
             </SelectTrigger>
@@ -143,7 +151,7 @@ export function CreateOrderPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Items</CardTitle>
+            <CardTitle>{t('orders.items')}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
             {items.map((item, idx) => {
@@ -164,7 +172,7 @@ export function CreateOrderPage() {
                     x{item.quantity}
                   </span>
                   <IconButton
-                    tooltip="Remove"
+                    tooltip={t('orders.remove')}
                     type="button"
                     variant="ghost"
                     size="icon-xs"
@@ -179,7 +187,7 @@ export function CreateOrderPage() {
 
             {items.length > 0 && (
               <div className="flex items-center justify-between border-t pt-2 text-sm font-semibold">
-                <span>Total ({currency})</span>
+                <span>{t('orders.total', { currency })}</span>
                 <span>
                   {items
                     .reduce((sum, item) => {
@@ -195,10 +203,13 @@ export function CreateOrderPage() {
 
             <div className="flex items-end gap-2">
               <div className="flex flex-1 flex-col gap-1.5">
-                <Label>Product</Label>
-                <Select value={newItemId} onValueChange={setNewItemId}>
+                <Label>{t('orders.product')}</Label>
+                <Select
+                  value={newItemId}
+                  onValueChange={(val) => setNewItemId(val ?? '')}
+                >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select product">
+                    <SelectValue placeholder={t('orders.selectProduct')}>
                       {selectedNewItem
                         ? `${selectedNewItem.name} — ${selectedNewItem.price} ${currency}`
                         : undefined}
@@ -214,7 +225,7 @@ export function CreateOrderPage() {
                 </Select>
               </div>
               <div className="flex w-20 flex-col gap-1.5">
-                <Label>Qty</Label>
+                <Label>{t('orders.qty')}</Label>
                 <Input
                   type="number"
                   min="1"
@@ -223,7 +234,7 @@ export function CreateOrderPage() {
                 />
               </div>
               <IconButton
-                tooltip="Add item"
+                tooltip={t('orders.addItem')}
                 type="button"
                 variant="outline"
                 size="icon"
@@ -241,10 +252,12 @@ export function CreateOrderPage() {
             variant="outline"
             onClick={() => navigate('/orders')}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" disabled={createOrder.isPending}>
-            {createOrder.isPending ? 'Creating...' : 'Create Order'}
+            {createOrder.isPending
+              ? t('orders.creating')
+              : t('orders.createOrder')}
           </Button>
         </div>
       </form>

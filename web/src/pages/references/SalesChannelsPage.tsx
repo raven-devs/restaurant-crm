@@ -1,24 +1,28 @@
+import { useTranslation } from 'react-i18next';
 import { useSalesChannels } from '@/hooks/useReferences';
 import { EntityPage, type FieldDef } from '@/components/EntityPage';
 import type { Column } from '@/components/DataTable';
 import type { SalesChannel } from '@/api/references';
 
-const columns: Column<SalesChannel>[] = [{ header: 'Name', accessor: 'name' }];
-
-const fields: FieldDef[] = [{ name: 'name', label: 'Name' }];
-
 export function SalesChannelsPage() {
+  const { t } = useTranslation();
   const { query, create, update, remove } = useSalesChannels();
+
+  const columns: Column<SalesChannel>[] = [
+    { header: t('common.name'), accessor: 'name' },
+  ];
+
+  const fields: FieldDef[] = [{ name: 'name', label: t('common.name') }];
 
   return (
     <EntityPage
-      title="Sales Channels"
+      title={t('references.salesChannels')}
       query={query}
       columns={columns}
       fields={fields}
       searchField="name"
       exportFilename="sales-channels"
-      createLabel="New Channel"
+      createLabel={t('references.newChannel')}
       createMutation={create}
       updateMutation={update}
       deleteMutation={remove}
