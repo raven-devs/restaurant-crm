@@ -10,9 +10,11 @@ Layer            Technology
 Backend          NestJS 11, TypeScript
 Database         Supabase (PostgreSQL 17)
 Auth             Supabase Auth (email/password)
-Frontend         React 19, Vite, Tailwind CSS 4, shadcn/ui
+Frontend         React 19, Vite, Tailwind CSS 4, shadcn/ui (@base-ui/react)
+i18n             react-i18next (frontend), custom (backend Telegram)
 Bot              Telegram (nestjs-telegraf)
 Monitoring       Sentry (@sentry/node + @sentry/react)
+Notifications    sonner (frontend toasts), Telegram (backend alerts)
 ```
 
 ## Project Structure
@@ -57,9 +59,13 @@ SUPABASE_SERVICE_ROLE_KEY=<secret key from Supabase Dashboard → Settings → A
 # Server
 PORT=3000
 
+# CORS (optional, defaults to http://localhost:5173)
+CORS_ORIGIN=http://localhost:5173
+
 # Telegram
 TELEGRAM_BOT_TOKEN=<token from @BotFather>
 TELEGRAM_CHAT_ID=<group chat ID, e.g. -5185308692>
+TELEGRAM_LANG=en
 
 # Sentry (optional)
 SENTRY_DSN=<DSN from Sentry → Project → Settings → Client Keys>
@@ -118,6 +124,66 @@ Railway        Backend (NestJS + Telegram)  railway.json
 ```
 
 Vercel rewrites `/api/*` requests to the Railway backend. Both platforms auto-deploy on merge to `main` via GitHub integration.
+
+### 1. Deploy Backend to Railway
+
+1. Go to [railway.app/new](https://railway.app/new) → **Deploy from GitHub repo**
+2. Connect the `RavenDevs/restaurant-crm` repository
+3. Railway auto-detects `railway.json` — no build settings to change
+4. Add environment variables in **Settings → Variables**:
+
+```
+SUPABASE_PROJECT_URL=https://coueibyzoduppdwckdct.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<from Supabase Dashboard → Settings → API Keys>
+TELEGRAM_BOT_TOKEN=<from @BotFather>
+TELEGRAM_CHAT_ID=<group chat ID>
+TELEGRAM_LANG=en
+PORT=3000
+CORS_ORIGIN=https://<your-vercel-domain>.vercel.app
+SENTRY_DSN=<optional>
+```
+
+5. Deploy. Railway assigns a public domain (e.g. `restaurant-crm-production-xxxx.up.railway.app`)
+6. Copy the Railway domain — you need it for the Vercel setup
+
+### 2. Deploy Frontend to Vercel
+
+1. Go to [vercel.com/new](https://vercel.com/new) → **Import Git Repository**
+2. Select the `RavenDevs/restaurant-crm` repository
+3. Configure build settings:
+
+```
+Framework Preset    Vite
+Root Directory      web
+Build Command       npm run build
+Output Directory    dist
+```
+
+4. Add environment variables:
+
+```
+VITE_SENTRY_DSN=<optional, from Sentry → Project → Settings → Client Keys>
+```
+
+5. Deploy. Vercel assigns a domain (e.g. `restaurant-crm-xxxx.vercel.app`)
+
+### 3. Connect Frontend to Backend
+
+1. Update `vercel.json` — replace `<RAILWAY_URL>` with the actual Railway domain:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://restaurant-crm-production-xxxx.up.railway.app/api/:path*"
+    }
+  ]
+}
+```
+
+2. Update the Railway `CORS_ORIGIN` variable to match the Vercel domain
+3. Commit and push — both platforms redeploy automatically
 
 ## API
 
@@ -288,3 +354,10 @@ Look for `"chat":{"id":-XXXXXXX}` and set that number as `TELEGRAM_CHAT_ID` in `
 - `/help` — Show available commands
 
 Status transitions and new orders trigger group chat notifications.
+
+## Localization
+
+The app supports English (EN) and Ukrainian (UK) locales.
+
+- **Frontend**: `react-i18next` with JSON translation files in `web/src/i18n/locales/`
+- **Backend**: Custom i18n for Telegram bot messages in `src/i18n/`, selected via `TELEGRAM_LANG` env var (defaults to `en`)
