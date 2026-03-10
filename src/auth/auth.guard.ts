@@ -23,6 +23,8 @@ export class AuthGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
+    if (context.getType() !== 'http') return true;
+
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractToken(request);
     if (!token) throw new UnauthorizedException('Missing authorization token');
